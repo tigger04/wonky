@@ -1,0 +1,34 @@
+#!/usr/local/bin/bash
+
+#shellcheck source=helper.sh
+# source ~/bin/helper.sh
+src_base=.weather
+src_dir=~
+src="$src_dir/$src_base"
+city=''
+
+recent_check="$(fd -g "$src_base" --changed-within 15min -uu -d1 "$src_dir" | wc -l)"
+
+if [ $recent_check -eq 0 ]; then
+    curl "https://wttr.in/$city?1qTF" > "$src"
+fi
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --city)
+            head -n 1 "$src"
+            ;;
+        --today)
+            head -n 7 "$src" | tail -n 5
+            ;;
+        --forecast)
+            tail -n -10 "$src"
+            ;;
+        *)
+            exit -1
+            ;;
+    esac
+
+    shift
+done
+

@@ -78,14 +78,16 @@ class Window(QWidget,):
 
         agenda=subprocess.run([os.path.expanduser('~/bin/tugenda')], stdout=subprocess.PIPE).stdout.decode('utf-8')
         calendar=subprocess.run([os.path.expanduser('~/wonky/calendar.lua')], stdout=subprocess.PIPE).stdout.decode('utf-8')
-        weather=subprocess.run([os.path.expanduser('~/bin/weather'), '--now'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        weather=subprocess.run([os.path.expanduser('~/bin/weather'), '--city', '--today'], stdout=subprocess.PIPE).stdout.decode('utf-8')
 
         # newtext=open(os.path.expanduser('~/tug-list.nice')).read()
         # if newtext != self.textEdit.text:
         self.textEdit.clear();
         self.textEdit.insertPlainText(agenda)
-        self.textEdit.insertPlainText(calendar)
+        self.textEdit.insertPlainText('\n')
         self.textEdit.insertPlainText(weather)
+        self.textEdit.insertPlainText('\n')
+        self.textEdit.insertPlainText(calendar)
 
         # self.textEdit.append(newtext)
 
