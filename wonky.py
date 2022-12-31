@@ -61,7 +61,7 @@ class Window(QWidget,):
         self.show()
         while True:
             self.refresh()
-            time.sleep(5) 
+            # time.sleep(5) 
 
     def mousePressEvent(self, event):
         self.oldPosition = event.globalPos()
