@@ -1,0 +1,95 @@
+#!/usr/local/bin/bash
+
+#shellcheck source=helper.sh
+source ~/bin/helper.sh
+
+# tug_generated="$(emacsclient -e "(org-store-agenda-views)")"
+srcfile=~/org/tug-agenda/tug-agenda.txt
+
+server_not_running_or_error () {
+
+    if pgrep emacs; then
+        emacsclient -e '(org-store-agenda-views)'
+    else
+        echo "Emacs server not running"
+        die
+    fi
+}
+
+enforce_show_today () {
+
+    file_date_string="$( head -n 1 "$srcfile" )"
+    # validate file is today's
+    file_date=( $file_date_string )
+    actual_date=( $(date "+%A %d %B %Y") )
+
+    # declare -p file_date actual_date
+    
+    for date_element_index in {0..3}; do
+        [[ ${file_date[$date_element_index]} == ${actual_date[$date_element_index]} ]] || server_not_running_or_error
+    done
+    
+}
+
+get_categories () {
+
+    # get full list of categories in to $categories
+
+    tugenda_categories=$(mktemp)
+    echo Today > $tugenda_categories
+
+    grep -E '^[[:space:]]*-->' "$srcfile" \
+        | sed -E 's/^[[:space:]]*-->//g' \
+              >> $tugenda_categories
+
+    echo Other >> $tugenda_categories
+
+    # cat $tugenda_categories
+}
+
+get_category () {
+
+    tugenda_index=0
+    current_category=Today
+
+    cat_regex="^[[:space:]]*-->(.*)$"
+    cat_other_regex="^[[:space:]]*Other\ items$"
+    
+    while read -r tugenda_line; do
+        if [ $((tugenda_index++)) -eq 0 ]; then
+            continue
+        elif [[ $tugenda_line =~ $cat_regex ]]; then
+            current_category="${BASH_REMATCH[1]}"
+        elif [[ $tugenda_line =~ $cat_other_regex ]]; then
+            current_category=Other
+        fi
+
+        if [[ "${1,,}" == "${current_category,,}" ]] \
+               && ! [[ $tugenda_line =~ $cat_regex ]] \
+               && ! [[ $tugenda_line =~ $cat_other_regex ]] \
+               && ! [[ "$tugenda_line" == "Today" ]] \
+               && [ -n "$tugenda_line" ]; then
+            echo "$tugenda_line"
+        fi
+    done < "$srcfile"
+}
+
+finally () {
+    rm $tugenda_categories
+}
+
+enforce_show_today
+get_categories
+
+if [ $# -eq 0 ] ; then
+    cat "$srcfile"
+    #     while read -r get_cat; do
+    #         echo "$get_cat:"
+    #         get_category "$get_cat"
+    #     done < $tugenda_categories
+else
+    while [ $# -gt 0 ] ; do
+        get_category "$1"
+        shift
+    done
+fi | sed -E -f "$0.sed"

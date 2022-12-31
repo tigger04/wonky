@@ -76,9 +76,9 @@ class Window(QWidget,):
         # what do we want?
         # agenda today inbox now next later handy quick-wins wtf ideas
 
-        agenda=subprocess.run([os.path.expanduser('~/bin/tugenda')], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        agenda=subprocess.run([os.path.expanduser('~/wonky/tugenda')], stdout=subprocess.PIPE).stdout.decode('utf-8')
         calendar=subprocess.run([os.path.expanduser('~/wonky/calendar.lua')], stdout=subprocess.PIPE).stdout.decode('utf-8')
-        weather=subprocess.run([os.path.expanduser('~/bin/weather'), '--city', '--today'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        weather=subprocess.run([os.path.expanduser('~/wonky/weather'), '--city', '--today'], stdout=subprocess.PIPE).stdout.decode('utf-8')
 
         # newtext=open(os.path.expanduser('~/tug-list.nice')).read()
         # if newtext != self.textEdit.text:
