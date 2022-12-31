@@ -1,0 +1,116 @@
+#!/usr/local/bin/bash
+
+#shellcheck source=helper.sh
+source ~/bin/helper.sh
+gitcap=$(mktemp)
+touch $gitcap
+
+fancymap=( '\U1F10C' '\U278A' '\U278B' '\U278C' '\U278D' '\U278E' '\U278F' '\U2790' '\U2791' '\U2792' '\U2793' )
+plus='⊕'
+ok="✔"
+
+# if [ -z "$user_interactive" ] ; then
+#     fancymap=( 1 2 3 4 5 6 7 8 9 9 )
+#     plus='+'
+#     ok='OK'
+# fi
+
+# for f in "${fancymap[@]}"; do
+#     echo -e "$f "
+# done
+
+
+# if [ $# -gt 1 ]; then
+#     show_dir_headers=true
+# else
+#     unset show_dir_headers
+# fi
+
+use_one_line=false
+only_show_status=false
+
+if [[ "$1" == "-1" ]]; then
+    use_one_line=true
+    shift
+elif [[ "$1" == "-01" ]]; then
+    only_show_status=true
+    shift
+else
+    use_one_line=false
+fi
+
+[ -n "$debug" ] && declare -p use_one_line
+
+if [ $# -eq 0 ]; then
+    set -- "$PWD"
+fi
+
+for dir in "$@"; do
+    
+    [ -n "$debug" ] && declare -p use_one_line
+
+
+    unset dead
+    cd "$dir" 2>/dev/null \
+        || dead=true \
+               info="💀" \
+               color="$grey"
+
+    if ! [ $dead ]; then
+        git status --porcelain >$gitcap 2>$gitcap.error
+        # gitcap_chars=$( wc -c < $gitcap )
+        gitcap_lines=$( wc -l < $gitcap )
+        
+        if [ -e $gitcap.error ] && [ $(wc -c < $gitcap.error) -gt 0 ]; then
+            color="$blue"
+            info=""
+        else
+            if [ $gitcap_lines -eq 0 ] ; then
+                color="${bigreen}"
+                info="$ok"
+            elif [ $gitcap_lines -gt 0 ] ;then
+                color="$yellow"
+                if [ $gitcap_lines -ge 10 ]; then
+                    info="${fancymap[10]}$plus"
+                else
+                    info="${fancymap[$gitcap_lines]}"
+                fi
+            else
+                color="$orange"
+                info="🤷‍♂️" #error
+            fi
+        fi
+    fi
+
+    [ -n "$debug" ] && declare -p use_one_line
+    [ -n "$debug" ] && declare -p use_one_line
+
+    if [[ "$dir" == "$HOME"* ]]; then
+        nice_dir='~'
+        if [[ "$dir" != "$HOME" ]]; then
+            nice_dir+="${dir#$HOME}"
+        fi
+    else
+        nice_dir="$dir"
+    fi
+
+
+    #    nice_dir="$(basename "$dir")"
+    #    nice_dir="${nice_dir%@*}"
+    
+    if [ -z "$user_interactive" ] ; then
+        unset color ansi_off
+    fi
+    
+    if $only_show_status; then
+        echo -ne "${color}${info}${ansi_off}"
+    else
+        echo -ne "${color}${info} ${nice_dir}${ansi_off} "
+        $use_one_line || echo
+    fi
+done
+
+$use_one_line && echo
+
+exit 0
+

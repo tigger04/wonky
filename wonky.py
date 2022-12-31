@@ -21,7 +21,7 @@ class Window(QWidget,):
         self.top = 25
         self.left = 1200
         self.width = 300
-        self.height = 600
+        self.height = 800
         self.setWindowTitle("wonky")
         # self.setWindowIcon(QtGui.QIcon("icon.png"))
         self.setGeometry(self.left, self.top, self.width, self.height)
@@ -77,6 +77,8 @@ class Window(QWidget,):
         agenda=subprocess.run([os.path.expanduser('~/wonky/tugenda')], stdout=subprocess.PIPE).stdout.decode('utf-8')
         calendar=subprocess.run([os.path.expanduser('~/wonky/calendar.lua')], stdout=subprocess.PIPE).stdout.decode('utf-8')
         weather=subprocess.run([os.path.expanduser('~/wonky/weather'), '--city', '--today'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        gitstatus=subprocess.run([os.path.expanduser('~/wonky/quick-git-status'), '~/bin', '~/dotfiles', '~/org', '~/fonting', '~/wonky' ], stdout=subprocess.PIPE).stdout.decode('utf-8')
+
 
         # newtext=open(os.path.expanduser('~/tug-list.nice')).read()
         # if newtext != self.textEdit.text:
@@ -86,6 +88,8 @@ class Window(QWidget,):
         self.textEdit.insertPlainText(weather)
         self.textEdit.insertPlainText('\n')
         self.textEdit.insertPlainText(calendar)
+        self.textEdit.insertPlainText('\n')
+        self.textEdit.insertPlainText(gitstatus)
 
         # self.textEdit.append(newtext)
 
