@@ -18,11 +18,11 @@ class Window(QWidget,):
     def __init__(self):
         super().__init__()
         # self.title = "no title"
-        self.top = 0
+        self.top = 25
         self.left = 1200
-        self.width = 400
-        self.height = 210
-        self.setWindowTitle("no title")
+        self.width = 300
+        self.height = 600
+        self.setWindowTitle("wonky")
         # self.setWindowIcon(QtGui.QIcon("icon.png"))
         self.setGeometry(self.left, self.top, self.width, self.height)
 
@@ -32,17 +32,11 @@ class Window(QWidget,):
         op=QGraphicsOpacityEffect(self)
         op.setOpacity(0.70) #0 to 1 will cause the fade effect to kick in
         self.setGraphicsEffect(op)
-        # self.setAutoFillBackground(True)
-
-
         
         flags = QtCore.Qt.WindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnBottomHint | QtCore.Qt.CustomizeWindowHint | QtCore.Qt.BypassWindowManagerHint)
         self.setWindowFlags(flags)
         vboxlayout = QGridLayout()
 
-        # sizegrip = QSizeGrip(self)
-        # sizegrip.setVisible(True)
-        # vboxlayout.addWidget(sizegrip)
         self.textEdit = QTextEdit()
         self.textEdit.setStyleSheet("border: 1px solid grey")
         
@@ -57,14 +51,8 @@ class Window(QWidget,):
         self.textEdit.setReadOnly(True)
 
         self.db = QFontDatabase()
-        font = self.db.font("fixed", "", 14)
+        font = self.db.font("ProFontIIx Nerd Font Mono", "", 10)
         self.textEdit.setCurrentFont(font)
-
-#        nowlist=open('../../tug-now.nice').read()
-#        todaylist=open('../../tug-today.nice').read()
- #       self.scroll_to_last_line()
- #       self.textEdit.append(todaylist)
- #       self.scroll_to_beginning()
 
         self.thetext=""
         vboxlayout.addWidget(self.textEdit)
@@ -88,16 +76,16 @@ class Window(QWidget,):
         # what do we want?
         # agenda today inbox now next later handy quick-wins wtf ideas
 
-        now=subprocess.run([os.path.expanduser('~/bin/tugenda')], stdout=subprocess.PIPE).stdout.decode('utf-8')
-        # today=subprocess.run([os.path.expanduser('~/bin/agenda'), 'today'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-        # agenda=subprocess.run([os.path.expanduser('~/bin/agenda'), 'agenda'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        agenda=subprocess.run([os.path.expanduser('~/bin/tugenda')], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        calendar=subprocess.run([os.path.expanduser('~/wonky/calendar.lua')], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        weather=subprocess.run([os.path.expanduser('~/bin/weather'), '--now'], stdout=subprocess.PIPE).stdout.decode('utf-8')
 
         # newtext=open(os.path.expanduser('~/tug-list.nice')).read()
         # if newtext != self.textEdit.text:
         self.textEdit.clear();
-        self.textEdit.insertPlainText(now)
-        # self.textEdit.insertPlainText(agenda)
-        # self.textEdit.insertPlainText(today)
+        self.textEdit.insertPlainText(agenda)
+        self.textEdit.insertPlainText(calendar)
+        self.textEdit.insertPlainText(weather)
 
         # self.textEdit.append(newtext)
 
