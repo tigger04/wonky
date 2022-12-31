@@ -40,7 +40,7 @@ class Window(QWidget,):
         vboxlayout = QGridLayout()
 
         self.textEdit = QTextEdit()
-        self.textEdit.setStyleSheet("border: 1px solid grey")
+        self.textEdit.setStyleSheet('background-color=\"#000000\"; color:\"#ffffff\";')
         
         self.textEdit.setAttribute(Qt.WA_TranslucentBackground)
         teOp=QGraphicsOpacityEffect(self.textEdit)
