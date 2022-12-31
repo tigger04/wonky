@@ -14,13 +14,15 @@ import time
 import os
 import subprocess
  
+ansi = Ansi2HTMLConverter()
+
 class Window(QWidget,):
     def __init__(self):
         super().__init__()
         # self.title = "no title"
         self.top = 25
         self.left = 1200
-        self.width = 300
+        self.width = 400
         self.height = 800
         self.setWindowTitle("wonky")
         # self.setWindowIcon(QtGui.QIcon("icon.png"))
@@ -77,7 +79,7 @@ class Window(QWidget,):
         agenda=subprocess.run([os.path.expanduser('~/wonky/tugenda')], stdout=subprocess.PIPE).stdout.decode('utf-8')
         calendar=subprocess.run([os.path.expanduser('~/wonky/calendar.lua')], stdout=subprocess.PIPE).stdout.decode('utf-8')
         weather=subprocess.run([os.path.expanduser('~/wonky/weather'), '--city', '--today'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-        gitstatus=subprocess.run([os.path.expanduser('~/wonky/quick-git-status'), '~/bin', '~/dotfiles', '~/org', '~/fonting', '~/wonky' ], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        gitstatus=subprocess.run([os.path.expanduser('~/wonky/quick-git-status'), os.path.expanduser('~/bin'), os.path.expanduser('~/dotfiles'), os.path.expanduser('~/org'), os.path.expanduser('~/fonting'), os.path.expanduser('~/wonky') ], stdout=subprocess.PIPE).stdout.decode('utf-8')
 
 
         # newtext=open(os.path.expanduser('~/tug-list.nice')).read()
@@ -89,7 +91,7 @@ class Window(QWidget,):
         self.textEdit.insertPlainText('\n')
         self.textEdit.insertPlainText(calendar)
         self.textEdit.insertPlainText('\n')
-        self.textEdit.insertPlainText(gitstatus)
+        self.textEdit.insertHtml(ansi.convert(gitstatus))
 
         # self.textEdit.append(newtext)
 

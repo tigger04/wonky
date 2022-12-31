@@ -47,9 +47,6 @@ fi
 
 for dir in "$@"; do
     
-    [ -n "$debug" ] && declare -p use_one_line
-
-
     unset dead
     cd "$dir" 2>/dev/null \
         || dead=true \
