@@ -61,7 +61,7 @@ class Window(QWidget,):
         self.show()
         while True:
             self.refresh()
-            # time.sleep(5) 
+            time.sleep(5) 
 
     def mousePressEvent(self, event):
         self.oldPosition = event.globalPos()
@@ -73,9 +73,7 @@ class Window(QWidget,):
  
     def refresh(self):
 
-        # what do we want?
-        # agenda today inbox now next later handy quick-wins wtf ideas
-
+        # TODO: relative paths
         agenda=subprocess.run([os.path.expanduser('~/wonky/tugenda')], stdout=subprocess.PIPE).stdout.decode('utf-8')
         calendar=subprocess.run([os.path.expanduser('~/wonky/calendar.lua')], stdout=subprocess.PIPE).stdout.decode('utf-8')
         weather=subprocess.run([os.path.expanduser('~/wonky/weather'), '--city', '--today'], stdout=subprocess.PIPE).stdout.decode('utf-8')
