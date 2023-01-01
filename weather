@@ -5,7 +5,7 @@
 src_base=.weather
 src_dir=~
 src="$src_dir/$src_base"
-city=''
+city=Greystones
 
 recent_check="$(fd -g "$src_base" --changed-within 15min -uu -d1 "$src_dir" | wc -l)"
 
