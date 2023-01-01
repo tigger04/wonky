@@ -8,7 +8,7 @@ srcfile=~/org/tug-agenda/tug-agenda.txt
 
 server_not_running_or_error () {
 
-    if pgrep emacs; then
+    if pgrep emacs >/dev/null 2>&1; then
         emacsclient -e '(org-store-agenda-views)'
     else
         echo "Emacs server not running"
@@ -21,7 +21,7 @@ enforce_show_today () {
     file_date_string="$( head -n 1 "$srcfile" )"
     # validate file is today's
     file_date=( $file_date_string )
-    actual_date=( $(date "+%A %d %B %Y") )
+    actual_date=( $(date "+%A %-d %B %Y") )
 
     # declare -p file_date actual_date
     

@@ -20,13 +20,15 @@ class Window(QWidget,):
     def __init__(self):
         super().__init__()
         # self.title = "no title"
-        self.top = 25
-        self.left = 1200
+        self.top = 75
+        self.left = 75
         self.width = 400
-        self.height = 800
+        self.height = 1000
         self.setWindowTitle("wonky")
         # self.setWindowIcon(QtGui.QIcon("icon.png"))
         self.setGeometry(self.left, self.top, self.width, self.height)
+
+        self.setStyleSheet('background-color:\"#000000\"; color:\"#ffffff\"; border:0px;')
 
         # self.setWindoOpacity(0.7)
         self.setAttribute(Qt.WA_TranslucentBackground)
@@ -40,7 +42,7 @@ class Window(QWidget,):
         vboxlayout = QGridLayout()
 
         self.textEdit = QTextEdit()
-        self.textEdit.setStyleSheet('background-color=\"#000000\"; color:\"#ffffff\";')
+        self.textEdit.setStyleSheet('background-color:\"#000000\"; color:\"#ffffff\";')
         
         self.textEdit.setAttribute(Qt.WA_TranslucentBackground)
         teOp=QGraphicsOpacityEffect(self.textEdit)
