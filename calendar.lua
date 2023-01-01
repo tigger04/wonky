@@ -1,10 +1,10 @@
 #!/usr/bin/env lua
 
-color=''
-color0=''
-color1=''
-color2=''
-color3=''
+color='</span><span style="color:white;">'
+color0='</span><span style="color:rgb(150,150,150);">'
+color1='</span><span style="color:rgb(250,150,150);">'
+color2='</span><span style="color:rgb(150,250,150);">'
+color3='</span><span style="color:rgb(150,150,250);">'
 
 -- t = today
 t = os.date('*t', os.time())
@@ -26,15 +26,16 @@ start_date = add_remove_days(start_date_this_wk, -7) -- start on Monday last wee
 
 end_date = add_remove_days(start_date, 7 * 9 - 1) -- show next 9 weeks including current
 
-io.write('Mo Tu We Th Fr Sa Su\n')
+io.write('Mo Tu We Th Fr Sa Su<br />')
 month_name={ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' }
 
 d = start_date
 new_month = d.month
+io.write('<span>')
 
 while os.time(d) <= os.time(end_date) do
 
-   if d.year == t.year and d.month == t.month and d.day == t.day then
+            if d.year == t.year and d.month == t.month and d.day == t.day then
       io.write(color1)
    elseif os.time(d) < os.time(t) then
       io.write(color0)
@@ -52,7 +53,7 @@ while os.time(d) <= os.time(end_date) do
       new_month = d.month
    end
    
-   io.write( string.format('%2d', d.day) .. ' ')
+   io.write( string.format('%02d', d.day) .. ' ')
 
    if d.wday == end_dow then
       if new_month ~= '' then
@@ -60,10 +61,10 @@ while os.time(d) <= os.time(end_date) do
          new_month = ''
       end
       
-      io.write('\n')
+      io.write('<br />')
    end
 
    d = add_remove_days(d, 1)
 end
 
-io.write(color)
+io.write('</span>')

@@ -2,6 +2,9 @@
 
 #shellcheck source=helper.sh
 source ~/bin/helper.sh
+
+notify "$0 $*"
+
 gitcap=$(mktemp)
 touch $gitcap
 

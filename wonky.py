@@ -14,8 +14,6 @@ import time
 import os
 import subprocess
  
-ansi = Ansi2HTMLConverter()
-
 class Window(QWidget,):
     def __init__(self):
         super().__init__()
@@ -28,13 +26,15 @@ class Window(QWidget,):
         # self.setWindowIcon(QtGui.QIcon("icon.png"))
         self.setGeometry(self.left, self.top, self.width, self.height)
 
-        self.setStyleSheet('background-color:\"#000000\"; color:\"#ffffff\"; border:0px;')
+        self.setStyleSheet("background-color: rgba(255,0,0,0%);");
+        # self.setStyleSheet('background-color:\"#000000\"; color:\"#ffffff\"; border:0px;')
 
         # self.setWindoOpacity(0.7)
         self.setAttribute(Qt.WA_TranslucentBackground)
 
         op=QGraphicsOpacityEffect(self)
-        op.setOpacity(0.70) #0 to 1 will cause the fade effect to kick in
+        # op.setOpacity(0.70) #0 to 1 will cause the fade effect to kick in
+        op.setOpacity(1) #0 to 1 will cause the fade effect to kick in
         self.setGraphicsEffect(op)
         
         flags = QtCore.Qt.WindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnBottomHint | QtCore.Qt.CustomizeWindowHint | QtCore.Qt.BypassWindowManagerHint)
@@ -42,11 +42,12 @@ class Window(QWidget,):
         vboxlayout = QGridLayout()
 
         self.textEdit = QTextEdit()
-        self.textEdit.setStyleSheet('background-color:\"#000000\"; color:\"#ffffff\";')
+        # self.textEdit.setStyleSheet('background-color:\"#000000\"; color:\"#ffffff\";')
+        self.textEdit.setStyleSheet("background-color: rgba(255,0,0,0%); color: rgba(255,255,255,100%);");
         
-        self.textEdit.setAttribute(Qt.WA_TranslucentBackground)
+        # self.textEdit.setAttribute(Qt.WA_TranslucentBackground)
         teOp=QGraphicsOpacityEffect(self.textEdit)
-        teOp.setOpacity(0.70) #0 to 1 will cause the fade effect to kick in
+        teOp.setOpacity(1) #0 to 1 will cause the fade effect to kick in
         self.textEdit.setGraphicsEffect(teOp)
 
         self.setContentsMargins(QMargins())
@@ -55,17 +56,22 @@ class Window(QWidget,):
         self.textEdit.setReadOnly(True)
 
         self.db = QFontDatabase()
-        font = self.db.font("ProFontIIx Nerd Font Mono", "", 10)
-        self.textEdit.setCurrentFont(font)
+        self.font = self.db.font("ProFontIIx Nerd Font Mono", "", 10)
+        # self.textEdit.setCurrentFont(font)
+        # self.textEdit.setFontFamily("ProFontIIx Nerd Font Mono")
+        # self.textEdit.setFontPointSize(10.0)
 
         self.thetext=""
         vboxlayout.addWidget(self.textEdit)
 
         self.setLayout(vboxlayout)
         self.show()
+        
+        self.ansi = Ansi2HTMLConverter()
+
         while True:
             self.refresh()
-            # time.sleep(5) 
+            time.sleep(60) 
 
     def mousePressEvent(self, event):
         self.oldPosition = event.globalPos()
@@ -91,23 +97,30 @@ class Window(QWidget,):
         self.textEdit.insertPlainText('\n')
         self.textEdit.insertPlainText(weather)
         self.textEdit.insertPlainText('\n')
-        self.textEdit.insertPlainText(calendar)
+        self.textEdit.insertHtml(calendar)
         self.textEdit.insertPlainText('\n')
-        self.textEdit.insertHtml(ansi.convert(gitstatus))
+        self.textEdit.insertHtml(self.ansi.convert(gitstatus))
 
         # self.textEdit.append(newtext)
 
-        self.textEdit.moveCursor(QtGui.QTextCursor.End)
-        self.textEdit.moveCursor(QtGui.QTextCursor.Start)
-        cursor = QtGui.QTextCursor(
-            self.textEdit.document().findBlockByLineNumber(0))
-# self.edit.document().findBlockByLineNumber(line))
-        self.textEdit.setTextCursor(cursor)
-# self.scroll_to_beginning()
+#         self.textEdit.moveCursor(QtGui.QTextCursor.End)
+#         self.textEdit.moveCursor(QtGui.QTextCursor.Start)
+#         cursor = QtGui.QTextCursor(
+#             self.textEdit.document().findBlockByLineNumber(0))
+# # self.edit.document().findBlockByLineNumber(line))
+#         self.textEdit.setTextCursor(cursor)
+# # self.scroll_to_beginning()
 
-        for x in range (1,60000):
-            QApplication.processEvents() #update gui for pyqt
-            time.sleep(0.001)
+        self.textEdit.selectAll()
+
+        self.textEdit.setCurrentFont(self.font)
+
+        self.textEdit.moveCursor(QtGui.QTextCursor.Start)
+
+        # for x in range (1,60000):
+
+        QApplication.processEvents() #update gui for pyqt
+            # time.sleep(0.001)
             
 # text=newtext
 
