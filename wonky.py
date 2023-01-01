@@ -26,7 +26,7 @@ class Window(QWidget,):
         # self.setWindowIcon(QtGui.QIcon("icon.png"))
         self.setGeometry(self.left, self.top, self.width, self.height)
 
-        self.setStyleSheet("background-color: rgba(255,0,0,0%);");
+        self.setStyleSheet("background-color: rgba(255,255,255,0%); border:0px;");
         # self.setStyleSheet('background-color:\"#000000\"; color:\"#ffffff\"; border:0px;')
 
         # self.setWindoOpacity(0.7)
@@ -37,13 +37,16 @@ class Window(QWidget,):
         op.setOpacity(1) #0 to 1 will cause the fade effect to kick in
         self.setGraphicsEffect(op)
         
-        flags = QtCore.Qt.WindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnBottomHint | QtCore.Qt.CustomizeWindowHint | QtCore.Qt.BypassWindowManagerHint)
+        # flags = QtCore.Qt.WindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnBottomHint | QtCore.Qt.CustomizeWindowHint | QtCore.Qt.BypassWindowManagerHint)
+
+        flags = QtCore.Qt.WindowFlags(QtCore.Qt.X11BypassWindowManagerHint)
+
         self.setWindowFlags(flags)
         vboxlayout = QGridLayout()
 
         self.textEdit = QTextEdit()
         # self.textEdit.setStyleSheet('background-color:\"#000000\"; color:\"#ffffff\";')
-        self.textEdit.setStyleSheet("background-color: rgba(255,0,0,0%); color: rgba(255,255,255,100%);");
+        self.textEdit.setStyleSheet("background-color: rgba(255,0,0,0%); color: rgba(255,255,255,100%); border:0");
         
         # self.textEdit.setAttribute(Qt.WA_TranslucentBackground)
         teOp=QGraphicsOpacityEffect(self.textEdit)
