@@ -3,7 +3,7 @@
 #shellcheck source=helper.sh
 source ~/bin/helper.sh
 
-notify "$0 $*"
+# notify "$0 $*"
 
 gitcap=$(mktemp)
 touch $gitcap
@@ -11,23 +11,6 @@ touch $gitcap
 fancymap=( '\U1F10C' '\U278A' '\U278B' '\U278C' '\U278D' '\U278E' '\U278F' '\U2790' '\U2791' '\U2792' '\U2793' )
 plus='⊕'
 ok="✔"
-
-# if [ -z "$user_interactive" ] ; then
-#     fancymap=( 1 2 3 4 5 6 7 8 9 9 )
-#     plus='+'
-#     ok='OK'
-# fi
-
-# for f in "${fancymap[@]}"; do
-#     echo -e "$f "
-# done
-
-
-# if [ $# -gt 1 ]; then
-#     show_dir_headers=true
-# else
-#     unset show_dir_headers
-# fi
 
 use_one_line=false
 only_show_status=false
@@ -97,10 +80,6 @@ for dir in "$@"; do
 
     #    nice_dir="$(basename "$dir")"
     #    nice_dir="${nice_dir%@*}"
-    
-    if [ -z "$user_interactive" ] ; then
-        unset color ansi_off
-    fi
     
     if $only_show_status; then
         echo -ne "${color}${info}${ansi_off}"
