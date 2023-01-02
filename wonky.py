@@ -37,9 +37,9 @@ class Window(QWidget,):
         op.setOpacity(1) #0 to 1 will cause the fade effect to kick in
         self.setGraphicsEffect(op)
         
-        # flags = QtCore.Qt.WindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnBottomHint | QtCore.Qt.CustomizeWindowHint | QtCore.Qt.BypassWindowManagerHint)
+        flags = QtCore.Qt.WindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnBottomHint | QtCore.Qt.CustomizeWindowHint | QtCore.Qt.BypassWindowManagerHint)
 
-        flags = QtCore.Qt.WindowFlags(QtCore.Qt.X11BypassWindowManagerHint)
+        # flags = QtCore.Qt.WindowFlags(QtCore.Qt.BypassWindowManagerHint)
 
         self.setWindowFlags(flags)
         vboxlayout = QGridLayout()
