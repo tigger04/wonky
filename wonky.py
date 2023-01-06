@@ -59,7 +59,7 @@ class Window(QWidget,):
         self.textEdit.setReadOnly(True)
 
         self.db = QFontDatabase()
-        self.font = self.db.font("ProFontIIx Nerd Font Mono", "", 10)
+        self.font = self.db.font("ProFontIIx Nerd Font Mono", "", 12)
         # self.textEdit.setCurrentFont(font)
         # self.textEdit.setFontFamily("ProFontIIx Nerd Font Mono")
         # self.textEdit.setFontPointSize(10.0)
@@ -98,8 +98,8 @@ class Window(QWidget,):
         self.textEdit.clear();
         self.textEdit.insertPlainText(agenda)
         self.textEdit.insertPlainText('\n')
-        self.textEdit.insertPlainText(weather)
-        self.textEdit.insertPlainText('\n')
+#        self.textEdit.insertPlainText(weather)
+#        self.textEdit.insertPlainText('\n')
         self.textEdit.insertHtml(calendar)
         self.textEdit.insertPlainText('\n')
         self.textEdit.insertHtml(self.ansi.convert(gitstatus))
