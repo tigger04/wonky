@@ -24,7 +24,7 @@ end
 start_date_this_wk = add_remove_days(t, -1 * start_dow_this_week_offset)
 start_date = add_remove_days(start_date_this_wk, -7) -- start on Monday last week
 
-end_date = add_remove_days(start_date, 7 * 12 - 1) -- show next 12 weeks including current
+end_date = add_remove_days(start_date, 7 * 10 - 1) -- show next 12 weeks including current
 
 io.write('Mo Tu We Th Fr Sa Su<br />')
 month_name={ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' }
