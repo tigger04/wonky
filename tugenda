@@ -6,6 +6,11 @@ source ~/bin/helper.sh
 # tug_generated="$(emacsclient -e "(org-store-agenda-views)")"
 srcfile=~/org/tug-agenda/tug-agenda.txt
 
+if ! [ -e "$srcfile" ]; then
+  echo "$srcfile does not exist"
+  exit 0
+fi
+
 server_not_running_or_error () {
 
     if pgrep emacs >/dev/null 2>&1; then
@@ -89,7 +94,17 @@ if [ $# -eq 0 ] ; then
     #     done < $tugenda_categories
 else
     while [ $# -gt 0 ] ; do
+        if [[ "$1" == "inbox-count" ]]; then
+            count_inbox="$(get_category inbox | wc -l)"
+            count_inbox=$((count_inbox + 0))
+            if [ $count_inbox -gt 0 ]; then
+                echo -n "🌟$count_inbox"
+            fi
+        else
         get_category "$1"
+        fi
+        
         shift
+
     done
 fi | sed -E -f "$0.sed"
