@@ -14,6 +14,8 @@ import time
 import os
 import subprocess
  
+home = os.path.expanduser('~')
+
 class Window(QWidget,):
     def __init__(self):
         super().__init__()
