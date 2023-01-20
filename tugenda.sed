@@ -12,4 +12,6 @@ s/^Deadline: +(TODO)?/⭕ /g
 s/^[0-9]+[[:space:]]d\. ago: /🟥/g
 s/[[:space:]]+/ /g
 s/^In ([0-9]+) *d\.: *(TODO )?/📅+\1 /g
-s/^HOLD /🛑 /g
+s/^HOLD /✋ /g
+s/^ELAB /📖 /g
+
