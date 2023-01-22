@@ -1,5 +1,5 @@
 s/^[[:space:]]+//g
-s/^[a-zA-Z0-9\-]+:[[:space:]]+//g
+s/^[a-zA-Z0-9\-]+:[[:space:]]*//g
 s/^TODO/>/g
 s/^IDEA/i/g
 s/\[#[A-E]\] //g
