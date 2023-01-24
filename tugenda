@@ -3,12 +3,15 @@
 #shellcheck source=helper.sh
 source ~/bin/helper.sh
 
+category_moji[inbox]='🌟'
+category_moji[today]='⭕'
+
 # tug_generated="$(emacsclient -e "(org-store-agenda-views)")"
 srcfile=~/org/tug-agenda/tug-agenda.txt
 
 if ! [ -e "$srcfile" ]; then
-  echo "$srcfile does not exist"
-  exit 0
+    echo "$srcfile does not exist"
+    exit 0
 fi
 
 server_not_running_or_error () {
@@ -93,15 +96,26 @@ if [ $# -eq 0 ] ; then
     #         get_category "$get_cat"
     #     done < $tugenda_categories
 else
+    if [ $# -gt 1 ] ; then
+        multiple_categories_selected=true
+    else
+        unset multiple_categories_selected
+    fi
+    
     while [ $# -gt 0 ] ; do
-        if [[ "$1" == "inbox-count" ]]; then
-            count_inbox="$(get_category inbox | wc -l)"
-            count_inbox=$((count_inbox + 0))
-            if [ $count_inbox -gt 0 ]; then
-                echo -n "🌟$count_inbox"
+        if [[ $1 =~ ^(.*)-count$ ]]; then
+            count_category_name="${BASH_REMATCH[1]}"
+            count_category="$(get_category "$count_category_name" | wc -l)"
+            count_category="$((count_category + 0))"
+            if [ $count_category -gt 0 ]; then
+                echo -n "${category_moji[$count_category_name]}$count_category"
             fi
         else
-        get_category "$1"
+            if [ $(get_category "$1" | wc -l) -gt 0 ] ; then
+                [ -n "$multiple_categories_selected" ] && echo "-->$1"
+                get_category "$1"
+                [ -n "$multiple_categories_selected" ] && echo
+            fi
         fi
         
         shift
