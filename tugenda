@@ -51,6 +51,8 @@ get_categories () {
               >> $tugenda_categories
 
     echo Other >> $tugenda_categories
+    echo Overdue >> $tugenda_categories
+    echo Coming\ Up >> $tugenda_categories
 
     # cat $tugenda_categories
 }
@@ -62,6 +64,8 @@ get_category () {
 
     cat_regex="^[[:space:]]*-->(.*)$"
     cat_other_regex="^[[:space:]]*Other\ items$"
+
+    requested_category="{1,,}"
     
     while read -r tugenda_line; do
         if [ $((tugenda_index++)) -eq 0 ]; then
@@ -70,6 +74,10 @@ get_category () {
             current_category="${BASH_REMATCH[1]}"
         elif [[ $tugenda_line =~ $cat_other_regex ]]; then
             current_category=Other
+        elif [[ $tugenda_line =~ Sched\. ]]; then
+            current_category=Overdue
+        elif [[ $tugenda_line =~ In[[:space:]]*[0-9]+[[:space:]]*d\.: ]]; then
+            current_category=Coming\ Up
         fi
 
         if [[ "${1,,}" == "${current_category,,}" ]] \
@@ -77,6 +85,7 @@ get_category () {
                && ! [[ $tugenda_line =~ $cat_other_regex ]] \
                && ! [[ "$tugenda_line" == "Today" ]] \
                && [ -n "$tugenda_line" ]; then
+            
             echo "$tugenda_line"
         fi
     done < "$srcfile"
