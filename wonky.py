@@ -222,9 +222,10 @@ class Window(QWidget,):
 
         self.textEdit.setCurrentFont(self.font)
 
-        if not self.cmdOutputType == OutputType.HTML:
+        if self.cmdOutputType == OutputType.PLAINTEXT:
             self.textEdit.setTextColor(self.textColor)
-            self.textEdit.setAlignment(self.textAlign)
+
+        self.textEdit.setAlignment(self.textAlign)
 
         self.textEdit.moveCursor(QtGui.QTextCursor.Start)
 
@@ -302,6 +303,24 @@ async def setmeup():
                         outputType = OutputType.PLAINTEXT,
                         )
 
+    gitdisp = Window (  align = Alignment.TOPRIGHT,
+                        top = 150,
+                        right = 25,
+                        height = 250,
+                        width = 200,
+                        period = 45,
+                        outputType = OutputType.ANSI,
+                        command = [ sys.path[0] + '/quick-git-status',
+                                    home + '/bin',
+                                    home + '/dotfiles',
+                                    home + '/org',
+                                    home + '/wonky',
+                                    home + '/fonting',
+                                    ],
+                        left = 75,
+                        fontsize = 10
+                        )
+
 
 
     await asyncio.gather( timedisp.start(),
@@ -309,7 +328,8 @@ async def setmeup():
                           tugstats.start(),
                           calendar.start(),
                           agenda.start(),
-                          weather.start()
+                          weather.start(),
+                          gitdisp.start(),
                          )
 
 
