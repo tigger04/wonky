@@ -42,17 +42,18 @@ class Window(QWidget,):
 
     def __init__(self,
                  command,
-                 top = 0,
-                 left = 0,
+                 top = 75,
+                 left = 75,
                  right = 0,
                  bottom = 0,
                  width = 400,
-                 height = 400,
+                 height = 50,
+                 margin = 0,
                  outputType = OutputType.HTML,
                  period = 60,
                  align = Alignment.TOPLEFT,
                  textAlign =  QtCore.Qt.AlignLeft,
-                 textColor =  QColor(128, 128, 128, 128),
+                 textColor =  QColor(200, 200, 200, 127),
                  font = "ProfontIIx Nerd Font Mono",
                  fontsize = 12,
                  title = "wonky"):
@@ -67,6 +68,7 @@ class Window(QWidget,):
         self.prefleft = left
         self.prefright = right
         self.prefbottom = bottom
+        self.prefmargin = margin
 
         # width and height may change, so prefs do not need to be retained beyond
         # initial setting of geometry
@@ -137,7 +139,7 @@ class Window(QWidget,):
                 self.prefleft = screenW - self.prefright - width
 
             case Alignment.MIDDLELEFT:
-                self.preftop = screenH - self.prefbottom - height
+                self.preftop = (screenH - height) / 2
                 # left = left
 
             case Alignment.MIDDLECENTER:
@@ -205,6 +207,7 @@ class Window(QWidget,):
             
             
         self.textEdit.clear();
+        self.textEdit.document().setDocumentMargin(self.prefmargin)
         self.textEdit.insertHtml(displayText)
         # self.textEdit.insertPlainText('\n')
         # self.textEdit.insertHtml(calendar)
@@ -225,20 +228,39 @@ class Window(QWidget,):
  
 async def setmeup():
     agenda = Window( top=75, left=75,
+                     width = 400,
+                     height = 400,
                      title="agenda",
-                     command=[home + '/wonky/tugenda', 'today', 'now', 'next'],
+                     command=[sys.path[0] + '/tugenda', 'today', 'now', 'next'],
                      outputType=OutputType.PLAINTEXT,
                      period=60,
                      textColor=QColor(255, 255, 255, 255),
                     )
 
-    battery = Window ( top=475, left=75,
+    battery = Window ( bottom=50, right=20,
                        title="battery",
-                       command=[home+"/bin/battery-status"],
-                       period=60,
+                       command=[sys.path[0] + "/battery-status"],
+                       period=15,
+                       align=Alignment.BOTTOMRIGHT,
+                       outputType = OutputType.PLAINTEXT,
                        textColor=QColor(255, 255, 255, 255),
                        font="Noto Color Emoji",
+                       textAlign =  QtCore.Qt.AlignRight,
                        )
+
+    weather = Window  ( align=Alignment.MIDDLELEFT,
+                        outputType = OutputType.PLAINTEXT,
+                        height=100,
+                        command=['curl', 'https://wttr.in/?0qT'],
+                        period=600,
+                        )
+
+    calendar = Window ( align=Alignment.BOTTOMLEFT,
+                        height=300,
+                        outputType = OutputType.HTML,
+                        command=[sys.path[0] + '/calendar.lua'],
+                        period=300,
+                        )
 
     timetest = Window ( bottom=100,
                         width=600,
@@ -252,7 +274,9 @@ async def setmeup():
                         textColor=QColor(255, 255, 255, 127),
                         )
 
-    await asyncio.gather(timetest.start(), battery.start(), agenda.start())
+
+
+    await asyncio.gather(timetest.start(), battery.start(), calendar.start(), agenda.start(), weather.start())
 
 
 if __name__ == "__main__":
