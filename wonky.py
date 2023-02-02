@@ -56,12 +56,15 @@ class Window(QWidget,):
                  textColor =  QColor(200, 200, 200, 127),
                  font = "ProfontIIx Nerd Font Mono",
                  fontsize = 12,
-                 title = "wonky"):
+                 title = "wonky",
+                 autoresize = False,
+                 ):
 
         super().__init__()
 
         self.setWindowTitle(title)
         self.prefAlign = align
+        self.autoresize = autoresize
 
         # these might be preferred margins or explicit x, y coordinates
         self.preftop = top
@@ -173,8 +176,9 @@ class Window(QWidget,):
         self.setAlignedGeometry(width, height)
 
     async def start(self):
-        self.refresh()
-        self.autoResize()
+        if self.autoresize:
+            self.refresh()
+            self.autoResize()
         while True:
             self.refresh()
             await asyncio.sleep(self.period) 
@@ -248,11 +252,16 @@ async def setmeup():
                        textAlign =  QtCore.Qt.AlignRight,
                        )
 
-    weather = Window  ( align=Alignment.MIDDLELEFT,
+    weather = Window  ( align=Alignment.BOTTOMCENTER,
                         outputType = OutputType.PLAINTEXT,
                         height=100,
-                        command=['curl', 'https://wttr.in/?0qT'],
+                        bottom = 25,
+                        width = 500,
+                        command=[sys.path[0] + '/weather.sh'],
                         period=600,
+                        font = 'Bohemian Typewriter',
+                        fontsize = 14,
+                        textAlign = QtCore.Qt.AlignRight,
                         )
 
     calendar = Window ( align=Alignment.BOTTOMLEFT,
@@ -272,6 +281,7 @@ async def setmeup():
                         fontsize=100,
                         textAlign=QtCore.Qt.AlignLeft,
                         textColor=QColor(255, 255, 255, 127),
+                        autoresize = True,
                         )
 
 
