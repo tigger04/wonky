@@ -247,7 +247,7 @@ async def setmeup():
                        height=250,
                        title="stats",
                        command=[sys.path[0] + "/system-stats"],
-                       period=10,
+                       period=4,
                        align=Alignment.TOPRIGHT,
                        outputType = OutputType.PLAINTEXT,
                        textColor=QColor(255, 255, 255, 255),
