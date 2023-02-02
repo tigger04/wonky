@@ -13,29 +13,31 @@ import sys
 import time
 import os
 import subprocess
- 
+from enum import Enum
+
 home = os.path.expanduser('~')
 
+class OutputType(Enum):
+    PLAINTEXT = 1
+    HTML = 2
+    ANSI = 3
+
+
 class Window(QWidget,):
-    def __init__(self):
+    def __init__(self, command, top=0, left=0, width=400, height=400,  outputType=OutputType.HTML, period=60, title="wonky"):
         super().__init__()
-        # self.title = "no title"
-        self.top = 75
-        self.left = 75
-        self.width = 400
-        self.height = 1000
-        self.setWindowTitle("wonky")
-        # self.setWindowIcon(QtGui.QIcon("icon.png"))
-        self.setGeometry(self.left, self.top, self.width, self.height)
+        self.setWindowTitle(title)
+        self.setGeometry(left, top, width, height)
 
         self.setStyleSheet("background-color: rgba(255,255,255,0%); border:0px;");
-        # self.setStyleSheet('background-color:\"#000000\"; color:\"#ffffff\"; border:0px;')
 
-        # self.setWindoOpacity(0.7)
         self.setAttribute(Qt.WA_TranslucentBackground)
 
+        self.command=command
+        self.cmdOutputType=outputType
+        self.period=period
+
         op=QGraphicsOpacityEffect(self)
-        # op.setOpacity(0.70) #0 to 1 will cause the fade effect to kick in
         op.setOpacity(1) #0 to 1 will cause the fade effect to kick in
         self.setGraphicsEffect(op)
         
@@ -47,10 +49,8 @@ class Window(QWidget,):
         vboxlayout = QGridLayout()
 
         self.textEdit = QTextEdit()
-        # self.textEdit.setStyleSheet('background-color:\"#000000\"; color:\"#ffffff\";')
         self.textEdit.setStyleSheet("background-color: rgba(255,0,0,0%); color: rgba(255,255,255,100%); border:0");
         
-        # self.textEdit.setAttribute(Qt.WA_TranslucentBackground)
         teOp=QGraphicsOpacityEffect(self.textEdit)
         teOp.setOpacity(1) #0 to 1 will cause the fade effect to kick in
         self.textEdit.setGraphicsEffect(teOp)
@@ -62,9 +62,6 @@ class Window(QWidget,):
 
         self.db = QFontDatabase()
         self.font = self.db.font("ProFontIIx Nerd Font Mono", "", 12)
-        # self.textEdit.setCurrentFont(font)
-        # self.textEdit.setFontFamily("ProFontIIx Nerd Font Mono")
-        # self.textEdit.setFontPointSize(10.0)
 
         self.thetext=""
         vboxlayout.addWidget(self.textEdit)
@@ -74,48 +71,38 @@ class Window(QWidget,):
         
         self.ansi = Ansi2HTMLConverter()
 
+    def start(self):
         while True:
             self.refresh()
-            time.sleep(60) 
+            time.sleep(self.period) 
 
-    def mousePressEvent(self, event):
-        self.oldPosition = event.globalPos()
+    # def mousePressEvent(self, event):
+    #     self.oldPosition = event.globalPos()
 
-    def mouseMoveEvent(self, event):
-        delta = QPoint(event.globalPos() - self.oldPosition)
-        self.move(self.x() + delta.x(), self.y() + delta.y())
-        self.oldPosition = event.globalPos()
+    # def mouseMoveEvent(self, event):
+    #     delta = QPoint(event.globalPos() - self.oldPosition)
+    #     self.move(self.x() + delta.x(), self.y() + delta.y())
+    #     self.oldPosition = event.globalPos()
  
     def refresh(self):
 
         # TODO: relative paths
-        agenda=subprocess.run([os.path.expanduser('~/wonky/tugenda'), 'today', 'now', 'next'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-        # agenda=subprocess.run([os.path.expanduser('~/wonky/tugenda'),], stdout=subprocess.PIPE).stdout.decode('utf-8')
-        calendar=subprocess.run([os.path.expanduser('~/wonky/calendar.lua')], stdout=subprocess.PIPE).stdout.decode('utf-8')
-        weather=subprocess.run([os.path.expanduser('~/wonky/weather'), '--city', '--today'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-        gitstatus=subprocess.run([os.path.expanduser('~/wonky/quick-git-status'), os.path.expanduser('~/bin'), os.path.expanduser('~/dotfiles'), os.path.expanduser('~/org'), os.path.expanduser('~/fonting'), os.path.expanduser('~/wonky') ], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        displayText=subprocess.run(self.command, stdout=subprocess.PIPE).stdout.decode('utf-8')
+        # agenda=subprocess.run([os.path.expanduser('~/wonky/tugenda'), 'today', 'now', 'next'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        # # agenda=subprocess.run([os.path.expanduser('~/wonky/tugenda'),], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        # calendar=subprocess.run([os.path.expanduser('~/wonky/calendar.lua')], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        # weather=subprocess.run([os.path.expanduser('~/wonky/weather'), '--city', '--today'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+        # gitstatus=subprocess.run([os.path.expanduser('~/wonky/quick-git-status'), os.path.expanduser('~/bin'), os.path.expanduser('~/dotfiles'), os.path.expanduser('~/org'), os.path.expanduser('~/fonting'), os.path.expanduser('~/wonky') ], stdout=subprocess.PIPE).stdout.decode('utf-8')
 
-
-        # newtext=open(os.path.expanduser('~/tug-list.nice')).read()
-        # if newtext != self.textEdit.text:
+        if self.cmdOutputType == OutputType.PLAINTEXT:
+            displayText=displayText.replace("\r","").replace("\n","<br />\n")
+            
         self.textEdit.clear();
-        self.textEdit.insertPlainText(agenda)
-        self.textEdit.insertPlainText('\n')
-#        self.textEdit.insertPlainText(weather)
-#        self.textEdit.insertPlainText('\n')
-        self.textEdit.insertHtml(calendar)
-        self.textEdit.insertPlainText('\n')
-        self.textEdit.insertHtml(self.ansi.convert(gitstatus))
-
-        # self.textEdit.append(newtext)
-
-#         self.textEdit.moveCursor(QtGui.QTextCursor.End)
-#         self.textEdit.moveCursor(QtGui.QTextCursor.Start)
-#         cursor = QtGui.QTextCursor(
-#             self.textEdit.document().findBlockByLineNumber(0))
-# # self.edit.document().findBlockByLineNumber(line))
-#         self.textEdit.setTextCursor(cursor)
-# # self.scroll_to_beginning()
+        self.textEdit.insertHtml(displayText)
+        # self.textEdit.insertPlainText('\n')
+        # self.textEdit.insertHtml(calendar)
+        # self.textEdit.insertPlainText('\n')
+        # self.textEdit.insertHtml(self.ansi.convert(gitstatus))
 
         self.textEdit.selectAll()
 
@@ -123,35 +110,25 @@ class Window(QWidget,):
 
         self.textEdit.moveCursor(QtGui.QTextCursor.Start)
 
-        # for x in range (1,60000):
 
         QApplication.processEvents() #update gui for pyqt
             # time.sleep(0.001)
-            
-# text=newtext
-
-    # def scroll_to_beginning(self):
-    #     cursor = self.textEdit.textCursor()
-    #     cursor.movePosition(QTextCursor.Start)
-    #     cursor.movePosition(QTextCursor.Up if cursor.atBlockStart() else
-    #                         QTextCursor.StartOfLine)
-        # self.setTextCursor(cursor)
-    # def scroll_to_last_line(self):
-    #     cursor = self.textCursor()
-    #     cursor.movePosition(QTextCursor.End)
-    #     cursor.movePosition(QTextCursor.Up if cursor.atBlockStart() else
-    #                         QTextCursor.StartOfLine)
-    #     self.window.setTextCursor(cursor)
-#
-#    def scroll_to_beginning(self):
-#        cursor = self.textCursor()
-#        cursor.movePosition(QTextCursor.Start)
-#        cursor.movePosition(QTextCursor.Up if cursor.atBlockStart() else
-#                            QTextCursor.StartOfLine)
-#        self.setTextCursor(cursor)
-
  
 if __name__ == "__main__":
     App = QApplication(sys.argv)
-    window = Window()
+    # window = Window()
+
+    agenda = Window( top=75, left=75,
+                     title="agenda",
+                     command=[home + '/wonky/tugenda', 'today', 'now', 'next'],
+                     outputType=OutputType.PLAINTEXT,
+                     period=60,
+                    )
+
+    battery = Window ( top=475, left=75,
+                       title="battery",
+                       command=[home+"/bin/battery-status"],
+                       period=60,
+                       )
+    
     sys.exit(App.exec())
