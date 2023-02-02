@@ -18,6 +18,8 @@ from enum import Enum
 
 home = os.path.expanduser('~')
 
+App = QApplication(sys.argv)
+
 class OutputType(Enum):
     PLAINTEXT = 1
     HTML = 2
@@ -36,10 +38,11 @@ class Alignment(Enum):
 
 
 class Window(QWidget,):
-    def __init__(self, command, top=0, left=0, width=400, height=400,  outputType=OutputType.HTML, period=60, align=Alignment.TOPLEFT, title="wonky"):
+    def __init__(self, command, top=0, left=0, right=0, bottom=0, width=400, height=400,  outputType=OutputType.HTML, period=60, align=Alignment.TOPLEFT, title="wonky"):
         super().__init__()
         self.setWindowTitle(title)
-        self.setGeometry(left, top, width, height)
+
+        self.setAlignedGeometry(align, top, left, right, bottom, width, height)
 
         self.setStyleSheet("background-color: rgba(255,255,255,0%); border:0px;");
 
@@ -82,6 +85,51 @@ class Window(QWidget,):
         self.show()
         
         self.ansi = Ansi2HTMLConverter()
+
+    def setAlignedGeometry(align, top, left, right, bottom, width, height):
+
+        screen = app.primaryScreen()
+        screenW = screen.size().width()
+        screenH = screen.size().height()
+
+        match align:
+            # case Alignment.TOPLEFT:
+                # this is the default
+
+            case Alignment.TOPCENTER:
+                # top = top
+                left = ( screenW - width ) / 2
+                
+            case Alignment.TOPRIGHT:
+                # top = top
+                left = screenW - right - width
+
+            case Alignment.MIDDLELEFT:
+                top = screenH - bottom - height
+                # left = left
+
+            case Alignment.MIDDLECENTER:
+                top = ( screenH - height ) / 2
+                left = ( screenW - width ) / 2
+
+            case Alignment.MIDDLERIGHT:
+                top = screenH - bottom - height
+                left = screenW - right - width
+
+            case Alignment.BOTTOMLEFT:
+                top = screenH - bottom - height
+                # left = left
+                
+            case Alignment.BOTTOMCENTER:
+                top = screenH - bottom - height
+                left = ( screenW - width ) / 2
+
+            case Alignment.BOTTOMRIGHT:
+                top = screenH - bottom - height
+                left = screenW - right - width
+
+
+        self.setGeometry(left, top, width, height)
 
     async def start(self):
         while True:
@@ -150,7 +198,6 @@ async def setmeup():
 
 
 if __name__ == "__main__":
-    App = QApplication(sys.argv)
     # window = Window()
 
     # asyncio.run(battery.start())
