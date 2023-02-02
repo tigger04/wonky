@@ -7,7 +7,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import * 
 from PyQt5 import QtGui
 from PyQt5 import QtCore
-from PyQt5.QtCore import QMargins, QPoint
+from PyQt5.QtCore import QMargins, QPoint, Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QVBoxLayout, QSizeGrip, QTextEdit
 import sys
 import time
@@ -15,10 +15,11 @@ import os
 import subprocess
 import asyncio
 from enum import Enum
+import datetime
 
 home = os.path.expanduser('~')
 
-App = QApplication(sys.argv)
+app = QApplication(sys.argv)
 
 class OutputType(Enum):
     PLAINTEXT = 1
@@ -38,11 +39,42 @@ class Alignment(Enum):
 
 
 class Window(QWidget,):
-    def __init__(self, command, top=0, left=0, right=0, bottom=0, width=400, height=400,  outputType=OutputType.HTML, period=60, align=Alignment.TOPLEFT, title="wonky"):
-        super().__init__()
-        self.setWindowTitle(title)
 
-        self.setAlignedGeometry(align, top, left, right, bottom, width, height)
+    def __init__(self,
+                 command,
+                 top = 0,
+                 left = 0,
+                 right = 0,
+                 bottom = 0,
+                 width = 400,
+                 height = 400,
+                 outputType = OutputType.HTML,
+                 period = 60,
+                 align = Alignment.TOPLEFT,
+                 textAlign =  QtCore.Qt.AlignLeft,
+                 textColor =  QColor(128, 128, 128, 128),
+                 font = "ProfontIIx Nerd Font Mono",
+                 fontsize = 12,
+                 title = "wonky"):
+
+        super().__init__()
+
+        self.setWindowTitle(title)
+        self.prefAlign = align
+
+        # these might be preferred margins or explicit x, y coordinates
+        self.preftop = top
+        self.prefleft = left
+        self.prefright = right
+        self.prefbottom = bottom
+
+        # width and height may change, so prefs do not need to be retained beyond
+        # initial setting of geometry
+
+        self.setAlignedGeometry(width, height)
+        
+        self.textColor = textColor
+        self.textAlign = textAlign
 
         self.setStyleSheet("background-color: rgba(255,255,255,0%); border:0px;");
 
@@ -76,7 +108,7 @@ class Window(QWidget,):
         self.textEdit.setReadOnly(True)
 
         self.db = QFontDatabase()
-        self.font = self.db.font("ProFontIIx Nerd Font Mono", "", 12)
+        self.font = self.db.font(font, "", fontsize)
 
         self.thetext=""
         vboxlayout.addWidget(self.textEdit)
@@ -86,52 +118,61 @@ class Window(QWidget,):
         
         self.ansi = Ansi2HTMLConverter()
 
-    def setAlignedGeometry(align, top, left, right, bottom, width, height):
+    def setAlignedGeometry(self, width, height):
 
         screen = app.primaryScreen()
         screenW = screen.size().width()
         screenH = screen.size().height()
 
-        match align:
+        match self.prefAlign:
             # case Alignment.TOPLEFT:
                 # this is the default
 
             case Alignment.TOPCENTER:
                 # top = top
-                left = ( screenW - width ) / 2
+                self.prefleft = ( screenW - width ) / 2
                 
             case Alignment.TOPRIGHT:
                 # top = top
-                left = screenW - right - width
+                self.prefleft = screenW - self.prefright - width
 
             case Alignment.MIDDLELEFT:
-                top = screenH - bottom - height
+                self.preftop = screenH - self.prefbottom - height
                 # left = left
 
             case Alignment.MIDDLECENTER:
-                top = ( screenH - height ) / 2
-                left = ( screenW - width ) / 2
+                self.preftop = ( screenH - height ) / 2
+                self.prefleft = ( screenW - width ) / 2
 
             case Alignment.MIDDLERIGHT:
-                top = screenH - bottom - height
-                left = screenW - right - width
+                self.preftop = screenH - self.prefbottom - height
+                self.prefleft = screenW - self.prefright - width
 
             case Alignment.BOTTOMLEFT:
-                top = screenH - bottom - height
+                self.preftop = screenH - self.prefbottom - height
                 # left = left
                 
             case Alignment.BOTTOMCENTER:
-                top = screenH - bottom - height
-                left = ( screenW - width ) / 2
+                self.preftop = screenH - self.prefbottom - height
+                self.prefleft = ( screenW - width ) / 2
 
             case Alignment.BOTTOMRIGHT:
-                top = screenH - bottom - height
-                left = screenW - right - width
+                self.preftop = screenH - self.prefbottom - height
+                self.prefleft = screenW - self.prefright - width
 
+        self.setGeometry(int(self.prefleft), int(self.preftop), width, height)
 
-        self.setGeometry(left, top, width, height)
+    def autoResize(self):
+        self.textEdit.document().setTextWidth(self.textEdit.viewport().width())
+        margins = self.textEdit.contentsMargins()
+        height = int(self.textEdit.document().size().height() + margins.top() + margins.bottom())
+        width = int(self.textEdit.document().size().width() + margins.left() + margins.right())
+        # self.setFixedHeight(height)
+        self.setAlignedGeometry(width, height)
 
     async def start(self):
+        self.refresh()
+        self.autoResize()
         while True:
             self.refresh()
             await asyncio.sleep(self.period) 
@@ -174,7 +215,7 @@ class Window(QWidget,):
 
         self.textEdit.setCurrentFont(self.font)
         self.textEdit.setTextColor(self.textColor)
-        self.textEdit.setAlignment(self.textAlignment)
+        self.textEdit.setAlignment(self.textAlign)
 
         self.textEdit.moveCursor(QtGui.QTextCursor.Start)
 
@@ -188,18 +229,27 @@ async def setmeup():
                      command=[home + '/wonky/tugenda', 'today', 'now', 'next'],
                      outputType=OutputType.PLAINTEXT,
                      period=60,
+                     textColor=QColor(255, 255, 255, 255),
                     )
 
     battery = Window ( top=475, left=75,
                        title="battery",
                        command=[home+"/bin/battery-status"],
                        period=60,
+                       textColor=QColor(255, 255, 255, 255),
+                       font="Noto Color Emoji",
                        )
 
-    timetest = Window ( top=700, left=75,
+    timetest = Window ( bottom=100,
+                        width=600,
+                        align=Alignment.BOTTOMCENTER,
                         title="time",
-                        command=["/bin/date"],
+                        command=["/bin/date", "+%H:%M:%S"],
                         period=1,
+                        font="Bohemian Typewriter",
+                        fontsize=100,
+                        textAlign=QtCore.Qt.AlignLeft,
+                        textColor=QColor(255, 255, 255, 127),
                         )
 
     await asyncio.gather(timetest.start(), battery.start(), agenda.start())
@@ -212,4 +262,4 @@ if __name__ == "__main__":
     # asyncio.run(agenda.start())
     asyncio.run(setmeup())
     
-    sys.exit(App.exec())
+    sys.exit(app.exec())
