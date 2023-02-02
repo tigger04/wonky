@@ -6,10 +6,10 @@
 set -e
 
 declare -A battery_status_icon
-battery_status_icon[Discharging]='🔋️'
+battery_status_icon[Discharging]='▶'
 battery_status_icon[Charging]='🔌'
 battery_status_icon[Not charging]='⚠️'
-battery_status_icon[Full]='✅'
+battery_status_icon[Full]='✔'
 
 cd /sys/class/power_supply/ || exit 255
 
@@ -26,5 +26,6 @@ for d in *; do
         read < "$d/capacity"
         blockchart $REPLY 100 10
         # echo "${REPLY}%"
+        echo
     fi
 done

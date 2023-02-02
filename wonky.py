@@ -221,8 +221,10 @@ class Window(QWidget,):
         self.textEdit.selectAll()
 
         self.textEdit.setCurrentFont(self.font)
-        self.textEdit.setTextColor(self.textColor)
-        self.textEdit.setAlignment(self.textAlign)
+
+        if not self.cmdOutputType == OutputType.HTML:
+            self.textEdit.setTextColor(self.textColor)
+            self.textEdit.setAlignment(self.textAlign)
 
         self.textEdit.moveCursor(QtGui.QTextCursor.Start)
 
@@ -241,11 +243,12 @@ async def setmeup():
                      textColor=QColor(255, 255, 255, 255),
                     )
 
-    battery = Window ( bottom=50, right=20,
-                       title="battery",
-                       command=[sys.path[0] + "/battery-status"],
-                       period=15,
-                       align=Alignment.BOTTOMRIGHT,
+    tugstats = Window (top=50, right=25,
+                       height=250,
+                       title="stats",
+                       command=[sys.path[0] + "/system-stats"],
+                       period=10,
+                       align=Alignment.TOPRIGHT,
                        outputType = OutputType.PLAINTEXT,
                        textColor=QColor(255, 255, 255, 255),
                        font="Noto Color Emoji",
@@ -271,22 +274,43 @@ async def setmeup():
                         period=300,
                         )
 
-    timetest = Window ( bottom=100,
-                        width=600,
+    timedisp = Window ( bottom=100,
+                        width=900,
                         align=Alignment.BOTTOMCENTER,
                         title="time",
-                        command=["/bin/date", "+%H:%M:%S"],
-                        period=1,
+                        command=["/bin/date", "+%H:%M"],
+                        period=4,
+                        font="Bohemian Typewriter",
+                        fontsize=150,
+                        textAlign=QtCore.Qt.AlignCenter,
+                        textColor=QColor(255, 255, 255, 90),
+                        autoresize = True,
+                        outputType = OutputType.PLAINTEXT,
+                        )
+
+    datedisp = Window ( top=75,
+                        width=900,
+                        align=Alignment.TOPCENTER,
+                        title="date",
+                        command=["/bin/date", "+%A %-d"],
+                        period=60,
                         font="Bohemian Typewriter",
                         fontsize=100,
-                        textAlign=QtCore.Qt.AlignLeft,
+                        textAlign=QtCore.Qt.AlignCenter,
                         textColor=QColor(255, 255, 255, 127),
                         autoresize = True,
+                        outputType = OutputType.PLAINTEXT,
                         )
 
 
 
-    await asyncio.gather(timetest.start(), battery.start(), calendar.start(), agenda.start(), weather.start())
+    await asyncio.gather( timedisp.start(),
+                          datedisp.start(),
+                          tugstats.start(),
+                          calendar.start(),
+                          agenda.start(),
+                          weather.start()
+                         )
 
 
 if __name__ == "__main__":

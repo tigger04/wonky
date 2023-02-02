@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+. "$(dirname -- "${BASH_SOURCE[0]}")/include.sh"
+# . include.sh
+
+cpu_usage () {
+    # -n2 is supposedly more accurate but takes forever
+    # top -b -n2 -p 1 | \grep "Cpu(s)" | tail -1 | awk -F'id,' -v prefix="$prefix" '{ split($1, vs, ","); v=vs[length(vs)]; sub("%", "", v); printf "%s%.1f%%\n",prefix, 100 - v }'
+    top -b -n1 -p 1 | \grep "Cpu(s)" | tail -1 | awk -F'id,' -v prefix="$prefix" '{ split($1, vs, ","); v=vs[length(vs)]; sub("%", "", v); printf "%s%.1f%%\n",prefix, 100 - v }'
+}
+
+failfail () {
+    'echo ⁉️'
+    exit 0
+}
+
+trap failfail ERR
+
+echo -n '⚡'
+
+bc_cpu="$(cpu_usage)"
+bc_cpu="${bc_cpu%'%'}"
+bc_cpu="${bc_cpu%.*}"
+
+blockchart -r "$bc_cpu" 100 10 || failfail
+
+echo
