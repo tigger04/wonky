@@ -13,6 +13,7 @@ import sys
 import time
 import os
 import subprocess
+import asyncio
 from enum import Enum
 
 home = os.path.expanduser('~')
@@ -22,9 +23,20 @@ class OutputType(Enum):
     HTML = 2
     ANSI = 3
 
+class Alignment(Enum):
+    TOPLEFT      = 1
+    TOPCENTER    = 2
+    TOPRIGHT     = 3
+    MIDDLELEFT   = 4
+    MIDDLECENTER = 5
+    MIDDLERIGHT  = 6
+    BOTTOMLEFT   = 7
+    BOTTOMCENTER = 8
+    BOTTOMRIGHT  = 9
+
 
 class Window(QWidget,):
-    def __init__(self, command, top=0, left=0, width=400, height=400,  outputType=OutputType.HTML, period=60, title="wonky"):
+    def __init__(self, command, top=0, left=0, width=400, height=400,  outputType=OutputType.HTML, period=60, align=Alignment.TOPLEFT, title="wonky"):
         super().__init__()
         self.setWindowTitle(title)
         self.setGeometry(left, top, width, height)
@@ -71,10 +83,10 @@ class Window(QWidget,):
         
         self.ansi = Ansi2HTMLConverter()
 
-    def start(self):
+    async def start(self):
         while True:
             self.refresh()
-            time.sleep(self.period) 
+            await asyncio.sleep(self.period) 
 
     # def mousePressEvent(self, event):
     #     self.oldPosition = event.globalPos()
@@ -114,10 +126,7 @@ class Window(QWidget,):
         QApplication.processEvents() #update gui for pyqt
             # time.sleep(0.001)
  
-if __name__ == "__main__":
-    App = QApplication(sys.argv)
-    # window = Window()
-
+async def setmeup():
     agenda = Window( top=75, left=75,
                      title="agenda",
                      command=[home + '/wonky/tugenda', 'today', 'now', 'next'],
@@ -130,5 +139,22 @@ if __name__ == "__main__":
                        command=[home+"/bin/battery-status"],
                        period=60,
                        )
+
+    timetest = Window ( top=700, left=75,
+                        title="time",
+                        command=["/bin/date"],
+                        period=1,
+                        )
+
+    await asyncio.gather(timetest.start(), battery.start(), agenda.start())
+
+
+if __name__ == "__main__":
+    App = QApplication(sys.argv)
+    # window = Window()
+
+    # asyncio.run(battery.start())
+    # asyncio.run(agenda.start())
+    asyncio.run(setmeup())
     
     sys.exit(App.exec())
