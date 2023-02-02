@@ -154,8 +154,14 @@ class Window(QWidget,):
         # weather=subprocess.run([os.path.expanduser('~/wonky/weather'), '--city', '--today'], stdout=subprocess.PIPE).stdout.decode('utf-8')
         # gitstatus=subprocess.run([os.path.expanduser('~/wonky/quick-git-status'), os.path.expanduser('~/bin'), os.path.expanduser('~/dotfiles'), os.path.expanduser('~/org'), os.path.expanduser('~/fonting'), os.path.expanduser('~/wonky') ], stdout=subprocess.PIPE).stdout.decode('utf-8')
 
-        if self.cmdOutputType == OutputType.PLAINTEXT:
-            displayText=displayText.replace("\r","").replace("\n","<br />\n")
+        match self.cmdOutputType:
+            case OutputType.PLAINTEXT:
+                displayText=displayText.replace("\r","").replace("\n","<br />\n")
+            case OutputType.ANSI:
+                displayText=self.ansi.convert(displayText)
+            # case OutputType.HTML:
+                # default
+            
             
         self.textEdit.clear();
         self.textEdit.insertHtml(displayText)
@@ -167,6 +173,8 @@ class Window(QWidget,):
         self.textEdit.selectAll()
 
         self.textEdit.setCurrentFont(self.font)
+        self.textEdit.setTextColor(self.textColor)
+        self.textEdit.setAlignment(self.textAlignment)
 
         self.textEdit.moveCursor(QtGui.QTextCursor.Start)
 
