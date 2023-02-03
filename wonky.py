@@ -265,7 +265,7 @@ async def setmeup():
                         period=600,
                         font = 'Bohemian Typewriter',
                         fontsize = 14,
-                        textAlign = QtCore.Qt.AlignRight,
+                        textAlign = QtCore.Qt.AlignCenter,
                         )
 
     calendar = Window ( align=Alignment.BOTTOMLEFT,
@@ -282,7 +282,7 @@ async def setmeup():
                         command=["/bin/date", "+%H:%M"],
                         period=4,
                         font="Bohemian Typewriter",
-                        fontsize=200,
+                        fontsize=160,
                         textAlign=QtCore.Qt.AlignCenter,
                         textColor=QColor(200, 200, 200, 90),
                         autoresize = True,
