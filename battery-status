@@ -24,8 +24,7 @@ for d in *; do
         echo -n "$batstatus"
 
         read < "$d/capacity"
-        blockchart $REPLY 100 10
-        # echo "${REPLY}%"
+        blockchart $REPLY 100 ${1:-10}
         echo
     fi
 done
