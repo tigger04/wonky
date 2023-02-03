@@ -236,9 +236,9 @@ class Window(QWidget,):
 async def setmeup():
     agenda = Window( top=75, left=75,
                      width = 400,
-                     height = 400,
+                     height = 705,
                      title="agenda",
-                     command=[sys.path[0] + '/tugenda', 'today', 'now', 'next'],
+                     command=[sys.path[0] + '/tugenda'],
                      outputType=OutputType.PLAINTEXT,
                      period=60,
                      textColor=QColor(255, 255, 255, 255),
