@@ -259,7 +259,7 @@ async def setmeup():
     weather = Window  ( align=Alignment.BOTTOMCENTER,
                         outputType = OutputType.PLAINTEXT,
                         height=100,
-                        bottom = 25,
+                        bottom = 150,
                         width = 500,
                         command=[sys.path[0] + '/weather.sh'],
                         period=600,
@@ -275,7 +275,8 @@ async def setmeup():
                         period=300,
                         )
 
-    timedisp = Window ( bottom=40,
+    timedisp = Window ( bottom=0, height=30,
+                        margin=0,
                         width=900,
                         align=Alignment.BOTTOMCENTER,
                         title="time",
