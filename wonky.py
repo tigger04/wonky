@@ -256,17 +256,32 @@ async def setmeup():
                        textAlign =  QtCore.Qt.AlignRight,
                        )
 
-    weather = Window  ( align=Alignment.BOTTOMCENTER,
+    weather = Window  ( align=Alignment.MIDDLECENTER,
                         outputType = OutputType.PLAINTEXT,
-                        height=100,
-                        bottom = 150,
-                        width = 500,
-                        command=[sys.path[0] + '/weather.sh'],
-                        period=600,
-                        font = 'Bohemian Typewriter',
-                        fontsize = 14,
+                        height=600,
+                        width = 600,
+                        command=[sys.path[0] + '/weather', 'condition'],
+                        period=60,
+                        font = 'Noto Color Emoji',
+                        fontsize = 200,
                         textAlign = QtCore.Qt.AlignCenter,
+                        textColor = QColor(0, 0, 0, 20),
+                        autoresize = True,
                         )
+
+    weatherdetail = Window( align=Alignment.MIDDLECENTER,
+                            outputType = OutputType.PLAINTEXT,
+                            height=600,
+                            width = 600,
+                            command=[sys.path[0] + '/weather', 'feels',],
+                            period=60,
+                            font = 'bohemian typewriter',
+                            fontsize = 50,
+                            textAlign = QtCore.Qt.AlignCenter,
+                            textColor = QColor(0,0,0, 170),
+                            autoresize = True,
+                           )
+
 
     calendar = Window ( align=Alignment.BOTTOMLEFT,
                         height=300,
@@ -345,6 +360,7 @@ async def setmeup():
                           calendar.start(),
                           agenda.start(),
                           weather.start(),
+                          weatherdetail.start(),
                           gitdisp.start(),
                          )
 
