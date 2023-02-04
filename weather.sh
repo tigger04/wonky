@@ -4,7 +4,7 @@
 # set --local options 'f/feels'
 # argparse $options -- $argv
 
-curl -sm10 "https://wttr.in/Dublin?format=%c;%t;%f;%S;%s;%h;%w;%p;%P;%C;%m" | read -d \; condition temperature feels sunrise sunset humidity wind precipitation pressure condition_desc moonphase
+curl -sm10 "https://wttr.in/Dublin?format=%l;%c;%t;%f;%S;%s;%h;%w;%p;%P;%C;%m" | read -d \; condition location temperature feels sunrise sunset humidity wind precipitation pressure condition_desc moonphase
 
 set feels_display (string trim --chars=+C -- $feels)
 set temp_display (string trim --chars=+C -- $temperature)

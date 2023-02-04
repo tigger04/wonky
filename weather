@@ -1,34 +1,62 @@
 #!/usr/bin/env bash
 
-#shellcheck source=helper.sh
-# source ~/bin/helper.sh
-src_base=.weather
-src_dir=~
-src="$src_dir/$src_base"
-city=''
+set -e
 
-recent_check="$(fd -g "$src_base" --changed-within 15min -uu -d1 "$src_dir" | wc -l)"
+delimiter=" "
 
-if [ $recent_check -eq 0 ]; then
-    curl "https://wttr.in/$city?1qTF" > "$src"
+if [ $# -ge 2 ] && [ "$1" == "-d" ] ; then
+    delimiter="$2"
+    shift
+    shift
 fi
 
-while [ $# -gt 0 ]; do
-    case "$1" in
-        --city)
-            head -n 1 "$src"
-            ;;
-        --today)
-            head -n 7 "$src" | tail -n 5
-            ;;
-        --forecast)
-            tail -n -10 "$src"
-            ;;
-        *)
-            exit -1
-            ;;
-    esac
+
+src_weather_dir=~
+src_weather_base=.weather
+src_weather_current_threshold=15 # mins
+
+src_weather_current="$(fd -g "$src_weather_base" --changed-within ${src_weather_current_threshold}min -uu -d1 "$src_weather_dir" | wc -l)"
+
+if ! [ -e $src_weather_dir/$src_weather_base ] || [ $src_weather_current -eq 0 ]; then
+
+    curl -sm4 'https://wttr.in/?format=location="%l"\ncondition="%c"\ntemperature="%t"\nfeels="%f"\nsunrise="%S"\nsunset="%s"\nhumidity="%h"\nwind="%w"\nprecipitation="%p"\npressure="%P"\ncondition_desc="%C"\nmoon="%m"\n' > "$src_weather_dir/$src_weather_base"
+
+fi
+
+. "$src_weather_dir/$src_weather_base"
+
+while [ $# -gt 0 ] ; do
+
+    output="${!1}"
+
+    if [ -n "${output}" ] ; then
+
+        case "$1" in
+            condition)
+                output="${output%[[:space:]]}"
+                ;;
+            sunrise|sunset)
+                output="${output%:*}"
+                ;;
+            temperature|feels)
+                output="${output%C}"
+                output="${output#+}"
+                ;;
+        esac
+
+        case "${output}" in
+            -0°)
+                output="0°"
+                ;;
+        esac
+
+        echo "$output"
+        
+    else
+        echo "$1"
+    fi
 
     shift
-done
+done | tr "\n" "$delimiter"
 
+echo
