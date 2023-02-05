@@ -42,8 +42,8 @@ class Window(QWidget,):
 
     def __init__(self,
                  command,
-                 top = 75,
-                 left = 75,
+                 top = 0,
+                 left = 0,
                  right = 0,
                  bottom = 0,
                  width = 400,
@@ -123,6 +123,18 @@ class Window(QWidget,):
         
         self.ansi = Ansi2HTMLConverter()
 
+    def getLeft(self):
+        return self.prefleft
+
+    def getTop(self):
+        return self.preftop
+
+    def getWidth(self):
+        return self.width
+
+    def getHeight(self):
+        return self.height
+
     def setAlignedGeometry(self, width, height):
 
         screen = app.primaryScreen()
@@ -130,42 +142,43 @@ class Window(QWidget,):
         screenH = screen.size().height()
 
         match self.prefAlign:
-            # case Alignment.TOPLEFT:
-                # this is the default
+            case Alignment.TOPLEFT:
+                top = self.preftop - self.prefbottom
+                left = self.prefleft - self.prefright
 
             case Alignment.TOPCENTER:
-                # top = top
-                self.prefleft = ( screenW - width ) / 2
+                top = self.preftop - self.prefbottom
+                left = ( screenW - width ) / 2 - self.prefright
                 
             case Alignment.TOPRIGHT:
-                # top = top
-                self.prefleft = screenW - self.prefright - width
+                top = self.preftop - self.prefbottom
+                left = screenW - self.prefright - width + self.prefleft
 
             case Alignment.MIDDLELEFT:
-                self.preftop = (screenH - height) / 2
-                # left = left
+                top = ( screenH - height ) / 2 + self.preftop - self.prefbottom
+                left = self.prefleft - self.prefright
 
             case Alignment.MIDDLECENTER:
-                self.preftop = ( screenH - height ) / 2
-                self.prefleft = ( screenW - width ) / 2
+                top = ( screenH - height ) / 2 + self.preftop - self.prefbottom
+                left = ( screenW - width ) / 2 + self.prefleft - self.prefright
 
             case Alignment.MIDDLERIGHT:
-                self.preftop = screenH - self.prefbottom - height
-                self.prefleft = screenW - self.prefright - width
+                top = ( screenH - height ) / 2 + self.preftop - self.prefbottom
+                left = screenW - self.prefright - width + self.prefleft
 
             case Alignment.BOTTOMLEFT:
-                self.preftop = screenH - self.prefbottom - height
-                # left = left
+                top = screenH - height + self.preftop - self.prefbottom
+                left = self.prefleft - self.prefright
                 
             case Alignment.BOTTOMCENTER:
-                self.preftop = screenH - self.prefbottom - height
-                self.prefleft = ( screenW - width ) / 2
+                top = screenH - height + self.preftop - self.prefbottom
+                left = ( screenW - width ) / 2 + self.prefleft - self.prefright
 
             case Alignment.BOTTOMRIGHT:
-                self.preftop = screenH - self.prefbottom - height
-                self.prefleft = screenW - self.prefright - width
+                top = screenH - height + self.preftop - self.prefbottom
+                left = screenW - self.prefright - width + self.prefleft
 
-        self.setGeometry(int(self.prefleft), int(self.preftop), width, height)
+        self.setGeometry(int(left), int(top), int(width), int(height))
 
     def autoResize(self):
         self.textEdit.document().setTextWidth(self.textEdit.viewport().width())
@@ -284,6 +297,7 @@ async def setmeup():
 
 
     calendar = Window ( align=Alignment.BOTTOMLEFT,
+                        left = 75, bottom = 75,
                         height=300,
                         outputType = OutputType.HTML,
                         command=[sys.path[0] + '/calendar.lua'],
