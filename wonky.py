@@ -21,6 +21,22 @@ home = os.path.expanduser('~')
 
 app = QApplication(sys.argv)
 
+screen = app.primaryScreen()
+screenW = screen.size().width()
+screenH = screen.size().height()
+
+all_screens = app.screens()
+
+for scr in all_screens:
+    print()
+    print(scr.name())
+    print(scr.availableGeometry())
+    print(scr.availableGeometry().width())
+    print(scr.availableGeometry().height())
+    print(scr.size())
+    print(scr.size().width())
+    print(scr.size().height())
+
 class OutputType(Enum):
     PLAINTEXT = 1
     HTML = 2
@@ -36,6 +52,12 @@ class Alignment(Enum):
     BOTTOMLEFT   = 7
     BOTTOMCENTER = 8
     BOTTOMRIGHT  = 9
+    LEFT         = 10
+    CENTER       = 11
+    RIGHT        = 12
+    TOP          = 13
+    MIDDLE       = 14
+    BOTTOM       = 15
 
 
 class Window(QWidget,):
@@ -46,8 +68,8 @@ class Window(QWidget,):
                  left = 0,
                  right = 0,
                  bottom = 0,
-                 width = 400,
-                 height = 50,
+                 maxwidth = None,
+                 maxheight = None,
                  margin = 10,
                  outputType = OutputType.HTML,
                  period = 60,
@@ -57,7 +79,8 @@ class Window(QWidget,):
                  font = "ProfontIIx Nerd Font Mono",
                  fontsize = 12,
                  title = "wonky",
-                 autoresize = False,
+                 autoresize = True,
+                 linewrap = False,
                  ):
 
         super().__init__()
@@ -76,7 +99,7 @@ class Window(QWidget,):
         # width and height may change, so prefs do not need to be retained beyond
         # initial setting of geometry
 
-        self.setAlignedGeometry(width, height)
+        self.setAlignedGeometry(app.primaryScreen(), 0.2, 0.2)
         
         self.textColor = textColor
         self.textAlign = textAlign
@@ -109,11 +132,15 @@ class Window(QWidget,):
 
         self.setContentsMargins(QMargins())
         self.textEdit.verticalScrollBar().setStyleSheet("height:0px")
+        self.textEdit.horizontalScrollBar().setStyleSheet("height:0px")
 
         self.textEdit.setReadOnly(True)
 
         self.db = QFontDatabase()
         self.font = self.db.font(font, "", fontsize)
+
+        if not linewrap:
+            self.textEdit.setLineWrapMode(QTextEdit.NoWrap)
 
         self.thetext=""
         vboxlayout.addWidget(self.textEdit)
@@ -123,60 +150,70 @@ class Window(QWidget,):
         
         self.ansi = Ansi2HTMLConverter()
 
-    def getLeft(self):
-        return self.prefleft
+    # def getLeft(self):
+    #     return self.prefleft
 
-    def getTop(self):
-        return self.preftop
+    # def getTop(self):
+    #     return self.preftop
 
-    def getWidth(self):
-        return self.width
+    # def getWidth(self):
+    #     return self.width
 
-    def getHeight(self):
-        return self.height
+    # def getHeight(self):
+    #     return self.height
 
-    def setAlignedGeometry(self, width, height):
+    def setAlignedGeometry(self, screen, width, height):
 
-        screen = app.primaryScreen()
         screenW = screen.size().width()
         screenH = screen.size().height()
 
+        t = screenH * self.preftop
+        b = screenH * self.prefbottom
+        l = screenW * self.prefleft
+        r = screenW * self.prefright
+
+        if width <= 1:
+            width = screenW * width
+
+        if height <= 1:
+            height = screenH * height
+
         match self.prefAlign:
             case Alignment.TOPLEFT:
-                top = self.preftop - self.prefbottom
-                left = self.prefleft - self.prefright
+                top = t - b
+                left = l - r
 
             case Alignment.TOPCENTER:
-                top = self.preftop - self.prefbottom
-                left = ( screenW - width ) / 2 - self.prefright
+                top = t - b
+                left = ( screenW - width ) / 2 - r
                 
             case Alignment.TOPRIGHT:
-                top = self.preftop - self.prefbottom
-                left = screenW - self.prefright - width + self.prefleft
+                top = t - b
+                left = screenW - r - width + l
 
             case Alignment.MIDDLELEFT:
-                top = ( screenH - height ) / 2 + self.preftop - self.prefbottom
-                left = self.prefleft - self.prefright
+                top = ( screenH - height ) / 2 + t - b
+                left = l - r
 
             case Alignment.MIDDLECENTER:
-                top = ( screenH - height ) / 2 + self.preftop - self.prefbottom
-                left = ( screenW - width ) / 2 + self.prefleft - self.prefright
+                top = ( screenH - height ) / 2 + t - b
+                left = ( screenW - width ) / 2 + l - r
 
             case Alignment.MIDDLERIGHT:
-                top = ( screenH - height ) / 2 + self.preftop - self.prefbottom
-                left = screenW - self.prefright - width + self.prefleft
+                top = ( screenH - height ) / 2 + t - b
+                left = screenW - r - width + l
 
             case Alignment.BOTTOMLEFT:
-                top = screenH - height + self.preftop - self.prefbottom
-                left = self.prefleft - self.prefright
+                top = screenH - height + t - b
+                left = l - r
                 
             case Alignment.BOTTOMCENTER:
-                top = screenH - height + self.preftop - self.prefbottom
-                left = ( screenW - width ) / 2 + self.prefleft - self.prefright
+                top = screenH - height + t - b
+                left = ( screenW - width ) / 2 + l - r
 
             case Alignment.BOTTOMRIGHT:
-                top = screenH - height + self.preftop - self.prefbottom
-                left = screenW - self.prefright - width + self.prefleft
+                top = screenH - height + t - b
+                left = screenW - r - width + l
 
         self.setGeometry(int(left), int(top), int(width), int(height))
 
@@ -186,7 +223,7 @@ class Window(QWidget,):
         height = int(self.textEdit.document().size().height() + margins.top() + margins.bottom())
         width = int(self.textEdit.document().size().width() + margins.left() + margins.right())
         # self.setFixedHeight(height)
-        self.setAlignedGeometry(width, height)
+        self.setAlignedGeometry(app.primaryScreen(), width, height)
 
     async def start(self):
         if self.autoresize:
@@ -242,14 +279,14 @@ class Window(QWidget,):
 
         self.textEdit.moveCursor(QtGui.QTextCursor.Start)
 
-
         QApplication.processEvents() #update gui for pyqt
             # time.sleep(0.001)
  
 async def setmeup():
-    agenda = Window( top=75, left=75,
-                     width = 400,
-                     height = 705,
+    agenda = Window( top=0.05, left=0.03,
+                     # width = 400,
+                     # height = 705,
+                     maxheight=0.3,
                      title="agenda",
                      command=[sys.path[0] + '/tugenda'],
                      outputType=OutputType.PLAINTEXT,
@@ -257,8 +294,8 @@ async def setmeup():
                      textColor=QColor(255, 255, 255, 255),
                     )
 
-    tugstats = Window (top=50, right=25,
-                       height=250,
+    tugstats = Window (top=0.05, right=0,
+                       # height=250,
                        title="stats",
                        command=[sys.path[0] + "/system-stats"],
                        period=4,
@@ -267,13 +304,13 @@ async def setmeup():
                        textColor=QColor(255, 255, 255, 255),
                        font="Noto Color Emoji",
                        textAlign =  QtCore.Qt.AlignRight,
+                       autoresize = True,
                        )
 
     weather = Window  ( align=Alignment.MIDDLECENTER,
                         outputType = OutputType.PLAINTEXT,
-                        height=600,
-                        width = 600,
-                        command=[sys.path[0] + '/weather', 'condition'],
+                        bottom=0.15,
+                        command=[sys.path[0] + '/weather', '%condition'],
                         period=60,
                         font = 'Noto Color Emoji',
                         fontsize = 200,
@@ -284,29 +321,42 @@ async def setmeup():
 
     weatherdetail = Window( align=Alignment.MIDDLECENTER,
                             outputType = OutputType.PLAINTEXT,
-                            height=600,
-                            width = 600,
-                            command=[sys.path[0] + '/weather', 'feels',],
+                            top=0.03,
+                            bottom=0.15,
+                            # height=100,
+                            # width = 400,
+                            command=[sys.path[0] + '/weather', '%feels'],
                             period=60,
                             font = 'bohemian typewriter',
-                            fontsize = 50,
+                            fontsize = 30,
                             textAlign = QtCore.Qt.AlignCenter,
-                            textColor = QColor(0,0,0, 170),
+                            textColor = QColor(127,127,127, 255),
+                            autoresize = True,
+                           )
+
+    weatherdetail2 = Window( align=Alignment.MIDDLECENTER,
+                            outputType = OutputType.PLAINTEXT,
+                            command=[sys.path[0] + '/weather', '%location', '🌡️', '%temperature', '☀', '%sunrise', '🌇', '%sunset'],
+                            period=60,
+                            fontsize = 15,
+                            textAlign = QtCore.Qt.AlignCenter,
+                            textColor = QColor(127,127,127, 255),
                             autoresize = True,
                            )
 
 
     calendar = Window ( align=Alignment.BOTTOMLEFT,
-                        left = 75, bottom = 75,
-                        height=300,
+                        left = 0.03, bottom = 0.05,
+                        # height=300,
                         outputType = OutputType.HTML,
                         command=[sys.path[0] + '/calendar.lua'],
                         period=300,
+                        autoresize = True,
                         )
 
-    timedisp = Window ( bottom=0, height=30,
-                        margin=0,
-                        width=900,
+    timedisp = Window ( bottom=0,
+                        # margin=0,
+                        # width=900,
                         align=Alignment.BOTTOMCENTER,
                         title="time",
                         command=["/bin/date", "+%H:%M"],
@@ -319,8 +369,8 @@ async def setmeup():
                         outputType = OutputType.PLAINTEXT,
                         )
 
-    datedisp = Window ( top=40,
-                        width=900,
+    datedisp = Window ( top=0.02,
+                        # width=900,
                         align=Alignment.TOPCENTER,
                         title="date",
                         command=["/bin/date", "+%A %-d"],
@@ -333,8 +383,8 @@ async def setmeup():
                         outputType = OutputType.PLAINTEXT,
                         )
 
-    monthdisp = Window (top=165,
-                        width=900, height=80,
+    monthdisp = Window (top=0.135,
+                        # width=900, height=80,
                         align=Alignment.TOPCENTER,
                         title="date",
                         command=["/bin/date", "+%B %Y"],
@@ -343,15 +393,14 @@ async def setmeup():
                         fontsize=20,
                         textAlign=QtCore.Qt.AlignCenter,
                         textColor=QColor(255, 255, 255, 127),
-                        autoresize = True,
                         outputType = OutputType.PLAINTEXT,
                         )
 
     gitdisp = Window (  align = Alignment.TOPRIGHT,
-                        top = 150,
-                        right = 25,
-                        height = 250,
-                        width = 200,
+                        top = 0.13,
+                        right = 0,
+                        # height = 250,
+                        # width = 200,
                         period = 45,
                         outputType = OutputType.ANSI,
                         command = [ sys.path[0] + '/quick-git-status',
@@ -361,8 +410,7 @@ async def setmeup():
                                     home + '/wonky',
                                     home + '/fonting',
                                     ],
-                        left = 75,
-                        fontsize = 10
+                        fontsize = 10,
                         )
 
 
@@ -375,6 +423,7 @@ async def setmeup():
                           agenda.start(),
                           weather.start(),
                           weatherdetail.start(),
+                          weatherdetail2.start(),
                           gitdisp.start(),
                          )
 
