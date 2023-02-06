@@ -2,13 +2,13 @@
 import sys
 import time
 from ansi2html import Ansi2HTMLConverter
-from PyQt6.QtCore import * 
-from PyQt6.QtGui import * 
-from PyQt6.QtWidgets import * 
-from PyQt6 import QtGui
-from PyQt6 import QtCore
-from PyQt6.QtCore import QMargins, QPoint, Qt
-from PyQt6.QtWidgets import QApplication, QWidget, QGridLayout, QVBoxLayout, QSizeGrip, QTextEdit
+from PyQt5.QtCore import * 
+from PyQt5.QtGui import * 
+from PyQt5.QtWidgets import * 
+from PyQt5 import QtGui
+from PyQt5 import QtCore
+from PyQt5.QtCore import QMargins, QPoint, Qt
+from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QVBoxLayout, QSizeGrip, QTextEdit
 import sys
 import time
 import os
@@ -21,8 +21,8 @@ home = os.path.expanduser('~')
 
 os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 app = QApplication(sys.argv)
-# app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) #enable highdpi scaling
-# app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True) #use highdpi icons
+app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) #enable highdpi scaling
+app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True) #use highdpi icons
 
 screen = app.primaryScreen()
 screenW = screen.size().width()
@@ -77,7 +77,7 @@ class Window(QWidget,):
                  outputType = OutputType.HTML,
                  period = 60,
                  align = Alignment.TOPLEFT,
-                 textAlign =  Qt.AlignmentFlag.AlignLeft,
+                 textAlign =  QtCore.Qt.AlignLeft,
                  textColor =  QColor(200, 200, 200, 127),
                  font = "ProfontIIx Nerd Font Mono",
                  fontsize = 12,
@@ -112,7 +112,7 @@ class Window(QWidget,):
 
         self.setStyleSheet("background-color: rgba(255,255,255,0%); border:0px;");
 
-        # self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setAttribute(Qt.WA_TranslucentBackground)
 
         self.command=command
         self.cmdOutputType=outputType
@@ -122,11 +122,11 @@ class Window(QWidget,):
         op.setOpacity(1) #0 to 1 will cause the fade effect to kick in
         self.setGraphicsEffect(op)
         
-        # flags = QtCore.Qt.WindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnBottomHint | QtCore.Qt.CustomizeWindowHint | QtCore.Qt.BypassWindowManagerHint)
+        flags = QtCore.Qt.WindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnBottomHint | QtCore.Qt.CustomizeWindowHint | QtCore.Qt.BypassWindowManagerHint)
 
         # flags = QtCore.Qt.WindowFlags(QtCore.Qt.BypassWindowManagerHint)
 
-        # self.setWindowFlags(flags)
+        self.setWindowFlags(flags)
         vboxlayout = QGridLayout()
 
         self.textEdit = QTextEdit()
@@ -317,7 +317,7 @@ async def setmeup():
                        textColor=QColor(255, 255, 255, 255),
                        font="Noto Color Emoji",
                        textAlign =  QtCore.Qt.AlignRight,
-                       # autoresize = True,
+                       autoresize = True,
                        )
 
     weather = Window  ( align=Alignment.MIDDLECENTER,
@@ -325,7 +325,7 @@ async def setmeup():
                         bottom=0.15,
                         command=[sys.path[0] + '/weather', '%condition', ],
                         period=60,
-                        font = 'JoyPixels',
+                        font = 'Noto Color Emoji',
                         fontsize = 200,
                         textAlign = QtCore.Qt.AlignCenter,
                         autoresize = True,
