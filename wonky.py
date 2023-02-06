@@ -19,7 +19,10 @@ import datetime
 
 home = os.path.expanduser('~')
 
+os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 app = QApplication(sys.argv)
+app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) #enable highdpi scaling
+app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True) #use highdpi icons
 
 screen = app.primaryScreen()
 screenW = screen.size().width()
