@@ -344,13 +344,14 @@ async def setmeup():
                            )
 
     weatherdetail2 = Window( align=Alignment.MIDDLECENTER,
-                            outputType = OutputType.PLAINTEXT,
-                            command=[sys.path[0] + '/weather', '--wonkydetail'],
-                            period=60,
-                            fontsize = 15,
-                            textAlign = QtCore.Qt.AlignCenter,
-                            textColor = QColor(127,127,127, 255),
-                            autoresize = True,
+                             outputType = OutputType.PLAINTEXT,
+                             command=[sys.path[0] + '/weather', '--wonkydetail'],
+                             period=60,
+                             bottom = 0.04,
+                             fontsize = 12,
+                             textAlign = QtCore.Qt.AlignCenter,
+                             textColor = QColor(127,127,127, 255),
+                             autoresize = True,
                            )
 
 

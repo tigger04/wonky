@@ -39,6 +39,8 @@ sunset="${sunset%:??}"
 feels="${feels%C}"
 feels="${feels#+}"
 [[ "$feels" == "-0°" ]] && feels="0°"
+temperature="${temperature%C}"
+temperature="${temperature#+}"
 [[ "$temperature" == "-0°" ]] && temperature="0°"
 
 while [ $# -gt 0 ] ; do
