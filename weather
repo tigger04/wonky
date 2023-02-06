@@ -33,6 +33,14 @@ fi
 
 . "$src_weather_dir/$src_weather_base"
 
+condition="${condition%[[:space:]]}"
+sunrise="${sunrise%:??}"
+sunset="${sunset%:??}"
+feels="${feels%C}"
+feels="${feels#+}"
+[[ "$feels" == "-0°" ]] && feels="0°"
+[[ "$temperature" == "-0°" ]] && temperature="0°"
+
 while [ $# -gt 0 ] ; do
 
     if [[ "$1" == "%"* ]]; then
@@ -40,29 +48,11 @@ while [ $# -gt 0 ] ; do
         output="${!wanted}"
 
         if [ -n "${output}" ] ; then
-
-            case "$wanted" in
-                condition)
-                    output="${output%[[:space:]]}"
-                    ;;
-                sunrise|sunset)
-                    output="${output%:*}"
-                    ;;
-                temperature|feels)
-                    output="${output%C}"
-                    output="${output#+}"
-                    ;;
-            esac
-
-            case "${output}" in
-                -0°)
-                    output="0°"
-                    ;;
-            esac
-
             echo -n "${output}|"
         fi
         
+    elif [[ "$1" == "--wonkydetail" ]]; then
+        echo -e "$location\n🌡$temperature ☀${sunrise}-${sunset}"
     else
         echo -n "${1}"
     fi

@@ -96,6 +96,9 @@ class Window(QWidget,):
         self.prefbottom = bottom
         self.prefmargin = margin
 
+        self.maxwidth = maxwidth
+        self.maxheight = maxheight
+
         # width and height may change, so prefs do not need to be retained beyond
         # initial setting of geometry
 
@@ -171,6 +174,12 @@ class Window(QWidget,):
         b = screenH * self.prefbottom
         l = screenW * self.prefleft
         r = screenW * self.prefright
+
+        if self.maxwidth and width > self.maxwidth:
+            width=self.maxwidth
+
+        if self.maxheight and height > self.maxheight:
+            height=self.maxheight
 
         if width <= 1:
             width = screenW * width
@@ -286,7 +295,7 @@ async def setmeup():
     agenda = Window( top=0.05, left=0.03,
                      # width = 400,
                      # height = 705,
-                     maxheight=0.3,
+                     maxheight=0.5,
                      title="agenda",
                      command=[sys.path[0] + '/tugenda'],
                      outputType=OutputType.PLAINTEXT,
@@ -336,7 +345,7 @@ async def setmeup():
 
     weatherdetail2 = Window( align=Alignment.MIDDLECENTER,
                             outputType = OutputType.PLAINTEXT,
-                            command=[sys.path[0] + '/weather', '%location', '🌡️', '%temperature', '☀', '%sunrise', '🌇', '%sunset'],
+                            command=[sys.path[0] + '/weather', '--wonkydetail'],
                             period=60,
                             fontsize = 15,
                             textAlign = QtCore.Qt.AlignCenter,
