@@ -328,7 +328,6 @@ async def setmeup():
                         font = 'Noto Color Emoji',
                         fontsize = 200,
                         textAlign = QtCore.Qt.AlignCenter,
-                        textColor = QColor(0, 0, 0, 20),
                         autoresize = True,
                         )
 
