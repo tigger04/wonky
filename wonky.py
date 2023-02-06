@@ -70,7 +70,7 @@ class Window(QWidget,):
                  bottom = 0,
                  maxwidth = None,
                  maxheight = None,
-                 margin = 10,
+                 margin = 20,
                  outputType = OutputType.HTML,
                  period = 60,
                  align = Alignment.TOPLEFT,
@@ -240,6 +240,7 @@ class Window(QWidget,):
             self.autoResize()
         while True:
             self.refresh()
+            
             await asyncio.sleep(self.period) 
 
     # def mousePressEvent(self, event):
@@ -365,7 +366,7 @@ async def setmeup():
                         )
 
     timedisp = Window ( bottom=0,
-                        # margin=0,
+                        # margin=25,
                         # width=900,
                         align=Alignment.BOTTOMCENTER,
                         title="time",
