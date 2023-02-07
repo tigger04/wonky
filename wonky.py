@@ -243,7 +243,10 @@ class Window(QWidget,):
             self.autoResize()
         while True:
             self.refresh()
-            
+
+            if self.autoresize:
+                self.autoResize()
+
             await asyncio.sleep(self.period) 
 
     # def mousePressEvent(self, event):
@@ -351,6 +354,7 @@ async def setmeup():
                              command=[sys.path[0] + '/weather', '--wonkydetail'],
                              period=60,
                              bottom = 0,
+                             margin = 20,
                              fontsize = 16,
                              font = "Bohemian Typewriter",
                              textAlign = QtCore.Qt.AlignCenter,
