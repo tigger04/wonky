@@ -37,7 +37,8 @@ blockchart () {
               )
 
     bc_block_count=$(( bc_metric * bc_maxblocks / bc_max / bc_precision ))
-    # [ $bc_block_count -eq 0 ] && bc_block_count=1
+    [ $bc_maxblocks -eq 1 ] && bc_block_count=1
+    # unsure ^^
     bc_block_count_empty=$((bc_maxblocks - bc_block_count))
 
     declare -i bc_index=0

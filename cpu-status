@@ -22,6 +22,6 @@ bc_cpu="$(cpu_usage)"
 bc_cpu="${bc_cpu%'%'}"
 bc_cpu="${bc_cpu%.*}"
 
-blockchart -r "$bc_cpu" 100 10 || failfail
+blockchart -r "$bc_cpu" 100 ${1:-10} || failfail
 
 echo
