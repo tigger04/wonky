@@ -130,4 +130,4 @@ else
         shift
 
     done
-fi | sed -E -f "$0.sed"
+fi | tail -n +3 | sed -E -f "$0.sed"

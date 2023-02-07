@@ -302,7 +302,7 @@ async def setmeup():
     agenda = Window( top=0.05, left=0.03,
                      # width = 400,
                      # height = 705,
-                     maxheight=0.5,
+                     maxheight=0.65,
                      title="agenda",
                      command=[sys.path[0] + '/tugenda'],
                      outputType=OutputType.PLAINTEXT,
