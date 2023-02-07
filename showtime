@@ -1,0 +1,25 @@
+#!/usr/local/bin/bash
+
+declare -g short_day=( X M Tu W Th F Sat Sun) # X = error, days of week are numbered from 1..7
+
+show_now="$(date --date '+2 minutes' '+%u/%d/%H:%M')"
+show_day_numeric=${show_now:0:1}
+show_day=${short_day[$show_day_numeric]}
+show_date=${show_now:2:2}
+show_time="${show_now:5}"
+
+show_date_flag=true
+[[ "$1" == "-t" ]] && show_date_flag=false && shift
+show_weather_icon_flag=false
+[[ "$1" == "-w" ]] && show_weather_icon_flag=true && shift
+
+if $show_date_flag ; then
+    echo -n "$1${show_day} ${show_date} "
+    shift
+fi
+
+if $show_weather_icon_flag; then
+    ~/wonky/weather %condition
+fi
+
+echo "$1${show_time}$2"

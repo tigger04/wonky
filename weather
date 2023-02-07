@@ -18,15 +18,15 @@ src_weather_current_threshold=15 # mins
 
 src_weather_current="$(fd -g "$src_weather_base" --changed-within ${src_weather_current_threshold}min -uu -d1 "$src_weather_dir" | wc -l)"
 
-if ! [ -e $src_weather_dir/$src_weather_base ] || [ $src_weather_current -eq 0 ]; then
+if [ $src_weather_current -eq 0 ]; then
 
-    rm $src_weather
+    [ -e $src_weather ] && rm $src_weather
+
     src_tmp=$(mktemp)
 
     curl -sm1 'https://wttr.in/?format=location="%l"\ncondition="%c"\ntemperature="%t"\nfeels="%f"\nsunrise="%S"\nsunset="%s"\nhumidity="%h"\nwind="%w"\nprecipitation="%p"\npressure="%P"\ncondition_desc="%C"\nmoon="%m"\n' > $src_tmp
 
     if [ -s $src_tmp ] && ! [ -e $src_weather ]; then
-        rm $src_weather
         mv $src_tmp $src_weather
     else
         rm $src_tmp
