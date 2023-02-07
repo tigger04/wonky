@@ -337,7 +337,7 @@ async def setmeup():
                             bottom=0.15,
                             # height=100,
                             # width = 400,
-                            command=[sys.path[0] + '/weather', '%feels', '%condition_desc'],
+                            command=[sys.path[0] + '/weather', '%condition', '%feels', '%condition_desc'],
                             period=60,
                             font = 'bohemian typewriter',
                             fontsize = 30,

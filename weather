@@ -50,15 +50,16 @@ while [ $# -gt 0 ] ; do
         output="${!wanted}"
 
         if [ -n "${output}" ] ; then
-            echo -n "${output}|"
+            echo "${output}"
         fi
         
     elif [[ "$1" == "--wonkydetail" ]]; then
-        echo -e "$location\n🌡$temperature ☀${sunrise}-${sunset}"
+        echo -e "$location\n🌡$temperature 🌞${sunrise} ${moon}${sunset}"
     else
-        echo -n "${1}"
+        echo "${1}"
     fi
 
     shift
-done | tr "|" "$delimiter"
-
+done | while read -r w_item; do
+    printf "%s%s" "$w_item" "$w_delimiter"
+done
