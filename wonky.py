@@ -346,12 +346,13 @@ async def setmeup():
                             autoresize = True,
                            )
 
-    weatherdetail2 = Window( align=Alignment.MIDDLECENTER,
+    weatherdetail2 = Window( align=Alignment.BOTTOMCENTER,
                              outputType = OutputType.PLAINTEXT,
                              command=[sys.path[0] + '/weather', '--wonkydetail'],
                              period=60,
-                             bottom = 0.04,
-                             fontsize = 12,
+                             bottom = 0,
+                             fontsize = 16,
+                             font = "Bohemian Typewriter",
                              textAlign = QtCore.Qt.AlignCenter,
                              textColor = QColor(127,127,127, 255),
                              autoresize = True,
@@ -435,8 +436,8 @@ async def setmeup():
                           calendar.start(),
                           agenda.start(),
                           # weather.start(),
-                          weatherdetail.start(),
-                          # weatherdetail2.start(),
+                          # weatherdetail.start(),
+                          weatherdetail2.start(),
                           gitdisp.start(),
                          )
 

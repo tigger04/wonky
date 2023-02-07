@@ -40,10 +40,12 @@ sunrise="${sunrise%:??}"
 sunset="${sunset%:??}"
 feels="${feels%C}"
 feels="${feels#+}"
+feels="~${feels}"
 [[ "$feels" == "-0°" ]] && feels="0°"
 temperature="${temperature%C}"
 temperature="${temperature#+}"
 [[ "$temperature" == "-0°" ]] && temperature="0°"
+location="${location%,*}"
 
 while [ $# -gt 0 ] ; do
 
@@ -56,7 +58,7 @@ while [ $# -gt 0 ] ; do
         fi
         
     elif [[ "$1" == "--wonkydetail" ]]; then
-        echo -e "$location\n🌡$temperature 🌞${sunrise} ${moon}${sunset}"
+        echo -e "${location}: $condition_desc $feels 🌡$temperature 🌞${sunrise} ${moon}${sunset}"
     else
         echo "${1}"
     fi
