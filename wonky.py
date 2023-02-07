@@ -417,6 +417,7 @@ async def setmeup():
     gitdisp = Window (  align = Alignment.TOPRIGHT,
                         top = 0.13,
                         right = 0,
+                        left = 0.1,
                         # height = 250,
                         # width = 200,
                         period = 45,
@@ -429,6 +430,7 @@ async def setmeup():
                                     home + '/fonting',
                                     ],
                         fontsize = 10,
+                        autoresize=False,
                         )
 
 
