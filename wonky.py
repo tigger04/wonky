@@ -354,7 +354,7 @@ async def setmeup():
                              fontsize = 16,
                              font = "Bohemian Typewriter",
                              textAlign = QtCore.Qt.AlignCenter,
-                             textColor = QColor(127,127,127, 255),
+                             textColor = QColor(200,200,200, 255),
                              autoresize = True,
                            )
 

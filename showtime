@@ -1,6 +1,6 @@
 #!/usr/local/bin/bash
 
-declare -g short_day=( X M Tu W Th F Sat Sun) # X = error, days of week are numbered from 1..7
+declare -g short_day=( X M T W H F S U ) # X = error, days of week are numbered from 1..7
 
 show_now="$(date --date '+2 minutes' '+%u/%d/%H:%M')"
 show_day_numeric=${show_now:0:1}
@@ -14,7 +14,7 @@ show_weather_icon_flag=false
 [[ "$1" == "-w" ]] && show_weather_icon_flag=true && shift
 
 if $show_date_flag ; then
-    echo -n "$1${show_day} ${show_date} "
+    echo -n "$1${show_day}${show_date#0} "
     shift
 fi
 
