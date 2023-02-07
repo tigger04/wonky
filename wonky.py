@@ -432,7 +432,7 @@ async def setmeup():
     await asyncio.gather( timedisp.start(),
                           datedisp.start(),
                           monthdisp.start(),
-                          tugstats.start(),
+                          # tugstats.start(),
                           calendar.start(),
                           agenda.start(),
                           # weather.start(),
