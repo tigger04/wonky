@@ -2,10 +2,10 @@
 
 set -e
 
-delimiter="\n"
+unset w_delimiter
 
 if [ $# -ge 2 ] && [ "$1" == "-d" ] ; then
-    delimiter="$2"
+    w_delimiter="$2"
     shift
     shift
 fi
@@ -62,6 +62,12 @@ while [ $# -gt 0 ] ; do
     fi
 
     shift
+
 done | while read -r w_item; do
-    printf "%s%s" "$w_item" "$w_delimiter"
+    if [ -n "$w_delimiter" ] ; then
+        echo -n "$w_item"
+        [[ "$w_delimiter" == "false" ]] || echo -n "$w_delimiter"
+    else
+        echo "$w_item"
+    fi
 done

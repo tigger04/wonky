@@ -18,8 +18,10 @@ if $show_date_flag ; then
     shift
 fi
 
+echo -n "$1${show_time}$2"
+
 if $show_weather_icon_flag; then
     ~/wonky/weather %condition
 fi
 
-echo "$1${show_time}$2"
+
