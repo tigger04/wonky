@@ -16,7 +16,7 @@ blockchart () {
 
     bc_metric_unadulterated=$(expr $1 + 0 )
 
-    bc_empty='◼️'
+    bc_empty='\U2B1B'
 
     bc_precision=1000
     bc_metric_precision=$((bc_metric_unadulterated * bc_precision))
@@ -58,7 +58,7 @@ blockchart () {
     done
 
     while [ $((bc_block_count_empty--)) -gt 0 ] ; do
-        echo -n "$bc_empty"
+        echo -ne "$bc_empty"
     done
 
 }
