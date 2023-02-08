@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-stats_length=${1:-6}
+stats_length=${1:-10}
 
 cd "$(dirname -- "${BASH_SOURCE[0]}")"
-# ./battery-status $stats_length
+./battery-status $stats_length
 ./disk-usage $stats_length
 ./cpu-status $stats_length
 ./mem-usage $stats_length
