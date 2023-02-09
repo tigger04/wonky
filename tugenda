@@ -3,6 +3,7 @@
 #shellcheck source=helper.sh
 source ~/bin/helper.sh
 
+declare -A category_moji
 category_moji[inbox]='🌟'
 category_moji[today]='⭕'
 
@@ -117,7 +118,8 @@ else
             count_category="$(get_category "$count_category_name" | wc -l)"
             count_category="$((count_category + 0))"
             if [ $count_category -gt 0 ]; then
-                echo -n "${category_moji[$count_category_name]}$count_category"
+                # declare -p category_moji count_category_name count_category
+                printf '%s%s' "${category_moji[$count_category_name]}" "$count_category"
             fi
         else
             if [ $(get_category "$1" | wc -l) -gt 0 ] ; then
@@ -130,4 +132,4 @@ else
         shift
 
     done
-fi | tail -n +3 | sed -E -f "$0.sed"
+fi | sed -E -f "$0.sed"
