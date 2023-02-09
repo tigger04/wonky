@@ -1,8 +1,11 @@
-#!/usr/local/bin/bash
+#!/usr/bin/env bash
 
 declare -g short_day=( X M T W H F S U ) # X = error, days of week are numbered from 1..7
 
-show_now="$(date --date '+2 minutes' '+%u/%d/%H:%M')"
+datecmd="date"
+command -v gdate >/dev/null 2>&1 && datecmd="gdate"
+
+show_now="$($datecmd --date '+2 minutes' '+%u/%d/%H:%M')"
 show_day_numeric=${show_now:0:1}
 show_day=${short_day[$show_day_numeric]}
 show_date=${show_now:2:2}
