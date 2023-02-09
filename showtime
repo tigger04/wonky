@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-declare -g short_day=( X M T W H F S U ) # X = error, days of week are numbered from 1..7
+declare -g short_day=( X M TU W TH F SA SU ) # X = error, days of week are numbered from 1..7
 
 datecmd="date"
 command -v gdate >/dev/null 2>&1 && datecmd="gdate"
