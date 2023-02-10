@@ -320,7 +320,7 @@ async def setmeup():
                        textColor=QColor(255, 255, 255, 255),
                        font="Noto Color Emoji",
                        textAlign =  QtCore.Qt.AlignRight,
-                       autoresize = True,
+                       autoresize = False,
                        )
 
     weather = Window  ( align=Alignment.MIDDLECENTER,
@@ -438,7 +438,7 @@ async def setmeup():
     await asyncio.gather( timedisp.start(),
                           datedisp.start(),
                           monthdisp.start(),
-                          # tugstats.start(),
+                          tugstats.start(),
                           calendar.start(),
                           agenda.start(),
                           weather.start(),
