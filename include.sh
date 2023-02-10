@@ -8,13 +8,13 @@ blockchart () {
     [[ "$1" == "-d" ]] && debug=true && shift
 
     if [[ "$1" == "-r" ]]; then
-        bc_scheme=( '🟩' '🟨' '🟧' '🟥' )
+        bc_scheme=( '🟩' '🟧' '🟥' )
         shift
     else
-        bc_scheme=( '🟥' '🟧' '🟨' '🟩' )
+        bc_scheme=( '🟥' '🟨' '🟩' )
     fi
 
-    bc_metric_unadulterated=$(expr $1 + 0 )
+    declare -i bc_metric_unadulterated=$(($1 + 0))
 
     bc_empty='\U2B1B'
 
@@ -31,9 +31,8 @@ blockchart () {
     bc_metric=$(( bc_metric_precision + bc_offset )) # for rounding
 
     bc_limits=( $(( 0 * bc_max / 100))
-                $((25 * bc_max / 100))
-                $((50 * bc_max / 100))
-                $((75 * bc_max / 100))
+                $((33 * bc_max / 100))
+                $((66 * bc_max / 100))
               )
 
     bc_block_count=$(( bc_metric * bc_maxblocks / bc_max / bc_precision ))
