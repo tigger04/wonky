@@ -8,7 +8,7 @@
 cpu_usage () {
     if [[ "$_os" == "Darwin" ]]; then
         local cpu_idle
-        cpu_idle="$(top -l 2 | grep -E "^CPU" | tail -n 1)"
+        cpu_idle="$(top -l 2 -s 0 | grep -E "^CPU" | tail -n 1)"
         cpu_idle=${cpu_idle#*sys, }
         cpu_idle=${cpu_idle%'%'*}
         cpu_idle=${cpu_idle%.*}
