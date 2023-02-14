@@ -8,9 +8,15 @@ set -e
 echo -n '💾'
 
 bc_disk="/"
-bc_disk="$(df "$bc_disk" | grep -Po '[0-9\.]+%')"
+bc_disk="$(df "$bc_disk" | grep -Eo '[0-9\.]+%' | head -n 1)"
 bc_disk="${bc_disk%'%'}"
 bc_disk="${bc_disk%.*}"
+
+if [[ "$_os" == "Darwin" ]]; then
+    bc_disk=$((100-bc_disk))
+fi
+
+# declare -p bc_disk
 
 blockchart -r "$bc_disk" 100 ${1:-10}
 

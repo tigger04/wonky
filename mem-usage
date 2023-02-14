@@ -4,12 +4,19 @@
 # . include.sh
 
 set -e
-
+[ -n "$_os" ] || _os=$(uname)
 echo -n '💡'
 
-bc_mem=( $(free -t | awk '/^Total:/ {print $2,$3}') )
-bc_mem_used=${bc_mem[1]}
-bc_mem_total=${bc_mem[0]}
+if [[ "$_os" == "Darwin" ]]; then
+    bc_mem="$(top -l 1 -s 0 | grep PhysMem)"
+    bc_mem="${bc_mem#*'('}"
+    bc_mem_used="${bc_mem%M wired*}"
+    bc_mem_total=$((8 * 1024))
+else
+    bc_mem=( $(free -t | awk '/^Total:/ {print $2,$3}') )
+    bc_mem_used=${bc_mem[1]}
+    bc_mem_total=${bc_mem[0]}
+fi
 
 blockchart -r $bc_mem_used $bc_mem_total ${1:-10}
 

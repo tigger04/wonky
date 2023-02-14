@@ -4,27 +4,52 @@
 # . include.sh
 
 set -e
+[ -n "$_os" ] || _os=$(uname)
 
 declare -A battery_status_icon
 battery_status_icon[Discharging]='▶'
 battery_status_icon[Charging]='🔌'
 battery_status_icon[Not charging]='⚠️'
 battery_status_icon[Full]='✔'
+battery_status_icon[Error]='‼️'
 
-cd /sys/class/power_supply/ || exit 255
+#for mac:
+battery_status_icon[Battery Power]="${battery_status_icon[Discharging]}"
+battery_status_icon[AC Power]="${battery_status_icon[Charging]}"
 
-for d in *; do
-
-    if [ -e "$d/capacity" ] && [ -e "$d/status" ] ; then
-
-        read < "$d/status"
-        batstatus="${battery_status_icon[$REPLY]}"
-        [ -z "$batstatus" ] && batstatus="$REPLY"
-
-        echo -n "$batstatus"
-
-        read < "$d/capacity"
-        blockchart $REPLY 100 ${1:-10}
-        echo
+if [[ "$_os" == "Darwin" ]] ; then
+    batstatus="$(pmset -g batt | grep 'Now drawing from')"
+    if [[ $batstatus =~ \'(.*)\' ]]; then
+        batstatus="${BASH_REMATCH[1]}"
+    else
+        batstatus="Error"
     fi
-done
+
+    # declare -p batstatus
+    batstatus="${batstatus%}"
+    batpc="$(pmset -g batt | grep -Eo "[0-9]+%")"
+    batpc="${batpc%'%'}"
+    # declare -p batpc
+
+    echo -n "${battery_status_icon[$batstatus]}"
+    blockchart $batpc 100 ${1:-10}
+else
+    cd /sys/class/power_supply/ || exit 255
+
+    for d in *; do
+
+        if [ -e "$d/capacity" ] && [ -e "$d/status" ] ; then
+
+            read < "$d/status"
+            batstatus="${battery_status_icon[$REPLY]}"
+            [ -z "$batstatus" ] && batstatus="$REPLY"
+
+            echo -n "$batstatus"
+
+            read < "$d/capacity"
+            blockchart $REPLY 100 ${1:-10}
+        fi
+    done
+fi
+
+echo

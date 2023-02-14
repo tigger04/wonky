@@ -1,3 +1,5 @@
+[ -n "$_os" ] || _os=$(uname)
+
 blockchart () {
 
     set -e

@@ -3,10 +3,22 @@
 . "$(dirname -- "${BASH_SOURCE[0]}")/include.sh"
 # . include.sh
 
+[ -n "$_os" ] || _os=$(uname)
+
 cpu_usage () {
-    # -n2 is supposedly more accurate but takes forever
-    # top -b -n2 -p 1 | \grep "Cpu(s)" | tail -1 | awk -F'id,' -v prefix="$prefix" '{ split($1, vs, ","); v=vs[length(vs)]; sub("%", "", v); printf "%s%.1f%%\n",prefix, 100 - v }'
-    top -b -n1 -p 1 | \grep "Cpu(s)" | tail -1 | awk -F'id,' -v prefix="$prefix" '{ split($1, vs, ","); v=vs[length(vs)]; sub("%", "", v); printf "%s%.1f%%\n",prefix, 100 - v }'
+    if [[ "$_os" == "Darwin" ]]; then
+        local cpu_idle
+        cpu_idle="$(top -l 2 | grep -E "^CPU" | tail -n 1)"
+        cpu_idle=${cpu_idle#*sys, }
+        cpu_idle=${cpu_idle%'%'*}
+        cpu_idle=${cpu_idle%.*}
+        cpu_usage=$((100-cpu_idle))
+        echo $cpu_usage
+    else
+        # -n2 is supposedly more accurate but takes forever
+        # top -b -n2 -p 1 | \grep "Cpu(s)" | tail -1 | awk -F'id,' -v prefix="$prefix" '{ split($1, vs, ","); v=vs[length(vs)]; sub("%", "", v); printf "%s%.1f%%\n",prefix, 100 - v }'
+        top -b -n1 -p 1 | \grep "Cpu(s)" | tail -1 | awk -F'id,' -v prefix="$prefix" '{ split($1, vs, ","); v=vs[length(vs)]; sub("%", "", v); printf "%s%.1f%%\n",prefix, 100 - v }'
+    fi
 }
 
 failfail () {
