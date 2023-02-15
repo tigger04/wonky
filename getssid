@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+wlan0_info="$(iwconfig 2>/dev/null | grep wlan0)"
+
+
+if [[ $wlan0_info =~ ESSID:\"(.*)\" ]]; then
+    ssid="${BASH_REMATCH[1]}"
+else
+    unset ssid
+fi
+
+echo "$ssid"
+

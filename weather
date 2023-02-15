@@ -10,6 +10,11 @@ if [ $# -ge 2 ] && [ "$1" == "-d" ] ; then
     shift
 fi
 
+if [[ "$(getssid)" == "SKY1EA25"* ]]; then
+    weather_location=Greystones
+else
+    unset weather_location
+fi
 
 src_weather_dir=~
 src_weather_base=.weather
@@ -24,7 +29,7 @@ if [ $src_weather_current -eq 0 ]; then
 
     src_tmp=$(mktemp)
 
-    curl -sm1 'https://wttr.in/?format=location="%l"\ncondition="%c"\ntemperature="%t"\nfeels="%f"\nsunrise="%S"\nsunset="%s"\ndawn="%D"\ndusk="%d"\nzenith="%z"\nhumidity="%h"\nwind="%w"\nprecipitation="%p"\npressure="%P"\ncondition_desc="%C"\nmoon="%m"\n' > $src_tmp
+    curl -sm1 'https://wttr.in/'"${weather_location}"'?format=location="%l"\ncondition="%c"\ntemperature="%t"\nfeels="%f"\nsunrise="%S"\nsunset="%s"\ndawn="%D"\ndusk="%d"\nzenith="%z"\nhumidity="%h"\nwind="%w"\nprecipitation="%p"\npressure="%P"\ncondition_desc="%C"\nmoon="%m"\n' > $src_tmp
 
     if [ -s $src_tmp ] && ! [ -e $src_weather ]; then
         mv $src_tmp $src_weather
@@ -35,44 +40,44 @@ fi
 
 . "$src_weather"
 
-condition="${condition%[[:space:]]*}"
-sunrise="${sunrise%:??}"
-sunset="${sunset%:??}"
-dawn="${dawn%:??}"
-dusk="${dusk%:??}"
-zenith="${zenith%:??}"
-feels="${feels%C}"
-feels="${feels#+}"
-feels="🖐🏻${feels}"
-[[ "$feels" == "-0°" ]] && feels="0°"
-temperature="${temperature%C}"
-temperature="${temperature#+}"
-[[ "$temperature" == "-0°" ]] && temperature="0°"
-location="${location%,*}"
+   condition="${condition%[[:space:]]*}"
+   sunrise="${sunrise%:??}"
+   sunset="${sunset%:??}"
+   dawn="${dawn%:??}"
+   dusk="${dusk%:??}"
+   zenith="${zenith%:??}"
+   feels="${feels%C}"
+   feels="${feels#+}"
+   feels="🖐🏻${feels}"
+   [[ "$feels" == "-0°" ]] && feels="0°"
+   temperature="${temperature%C}"
+   temperature="${temperature#+}"
+   [[ "$temperature" == "-0°" ]] && temperature="0°"
+   location="${location%,*}"
 
-while [ $# -gt 0 ] ; do
+   while [ $# -gt 0 ] ; do
 
-    if [[ "$1" == "%"* ]]; then
-        wanted="${1#'%'}"
-        output="${!wanted}"
+       if [[ "$1" == "%"* ]]; then
+           wanted="${1#'%'}"
+           output="${!wanted}"
 
-        if [ -n "${output}" ] ; then
-            echo "${output}"
-        fi
-        
-    elif [[ "$1" == "--wonkydetail" ]]; then
-        echo -e "${location}: $condition_desc $feels 🌡$temperature 🌞${dawn}-${sunrise} ${moon}${sunset}-${dusk}"
-    else
-        echo "${1}"
-    fi
+           if [ -n "${output}" ] ; then
+               echo "${output}"
+           fi
+           
+       elif [[ "$1" == "--wonkydetail" ]]; then
+           echo -e "${location}: $condition_desc $feels 🌡$temperature 🌞${dawn}-${sunrise} ${moon}${sunset}-${dusk}"
+       else
+           echo "${1}"
+       fi
 
-    shift
+       shift
 
-done | while read -r w_item; do
-    if [ -n "$w_delimiter" ] ; then
-        echo -n "$w_item"
-        [[ "$w_delimiter" == "false" ]] || echo -n "$w_delimiter"
-    else
-        echo "$w_item"
-    fi
-done
+   done | while read -r w_item; do
+       if [ -n "$w_delimiter" ] ; then
+           echo -n "$w_item"
+           [[ "$w_delimiter" == "false" ]] || echo -n "$w_delimiter"
+       else
+           echo "$w_item"
+       fi
+   done
