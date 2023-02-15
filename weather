@@ -61,7 +61,7 @@ while [ $# -gt 0 ] ; do
         fi
         
     elif [[ "$1" == "--wonkydetail" ]]; then
-        echo -e "${location}: $condition_desc $feels 🌡$temperature 🌞${dawn} 😎${zenith} ${moon}${dusk}"
+        echo -e "${location}: $condition_desc $feels 🌡$temperature 🌞${dawn}-${sunrise} ${moon}${sunset}-${dusk}"
     else
         echo "${1}"
     fi
