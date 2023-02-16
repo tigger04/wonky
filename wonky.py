@@ -369,7 +369,6 @@ async def setmeup():
                         # height=300,
                         outputType = OutputType.HTML,
                         command=[sys.path[0] + '/calendar.lua'],
-                        font="Bohemian Typewriter",
                         period=300,
                         autoresize = True,
                         )
