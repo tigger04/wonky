@@ -307,6 +307,7 @@ async def setmeup():
                      command=[sys.path[0] + '/tugenda'],
                      outputType=OutputType.PLAINTEXT,
                      period=60,
+                     font="Bohemian Typewriter",
                      textColor=QColor(255, 255, 255, 255),
                     )
 
@@ -368,6 +369,7 @@ async def setmeup():
                         # height=300,
                         outputType = OutputType.HTML,
                         command=[sys.path[0] + '/calendar.lua'],
+                        font="Bohemian Typewriter",
                         period=300,
                         autoresize = True,
                         )
@@ -430,6 +432,7 @@ async def setmeup():
                                     home + '/fonting',
                                     ],
                         fontsize = 10,
+                        font="Bohemian Typewriter",
                         autoresize=False,
                         )
 
