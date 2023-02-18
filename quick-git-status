@@ -68,17 +68,16 @@ for dir in "$@"; do
     [ -n "$debug" ] && declare -p use_one_line
     [ -n "$debug" ] && declare -p use_one_line
 
-    if [[ "$dir" == "$HOME"* ]]; then
-        nice_dir='~'
-        if [[ "$dir" != "$HOME" ]]; then
-            nice_dir+="${dir#$HOME}"
-        fi
-    else
-        nice_dir="$dir"
-    fi
+    # if [[ "$dir" == "$HOME"* ]]; then
+    #     nice_dir='~'
+    #     if [[ "$dir" != "$HOME" ]]; then
+    #         nice_dir+="${dir#$HOME}"
+    #     fi
+    # else
+    #     nice_dir="$dir"
+    # fi
 
-
-    #    nice_dir="$(basename "$dir")"
+    nice_dir="$(basename "$dir")"
     #    nice_dir="${nice_dir%@*}"
     
     if $only_show_status; then
