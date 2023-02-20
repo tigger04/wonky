@@ -116,7 +116,7 @@ else
         if [[ $1 =~ ^(.*)-count$ ]]; then
             count_category_name="${BASH_REMATCH[1]}"
             count_category="$(get_category "$count_category_name" | wc -l)"
-            count_category="$((count_category + 0))"
+            count_category=$((count_category + 0))
             if [ $count_category -gt 0 ]; then
                 # declare -p category_moji count_category_name count_category
                 printf '%s%s' "${category_moji[$count_category_name]}" "$count_category"
