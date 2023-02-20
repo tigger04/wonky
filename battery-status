@@ -6,8 +6,11 @@
 set -e
 [ -n "$_os" ] || _os=$(uname)
 
+show_pc=false
+[ -n "$1" ] && [[ "${1}" == "-pc" ]] && show_pc=true && shift
+
 declare -A battery_status_icon
-battery_status_icon[Discharging]='🪫'
+battery_status_icon[Discharging]='💻'
 battery_status_icon[Charging]='🔌'
 battery_status_icon[Not charging]='⚠️'
 battery_status_icon[Full]='🔋'
@@ -33,6 +36,7 @@ if [[ "$_os" == "Darwin" ]] ; then
 
     echo -n "${battery_status_icon[$batstatus]}"
     blockchart $batpc 100 ${1:-10}
+    if $show_pc ; then echo -n "${batpc}%"; fi
 else
     cd /sys/class/power_supply/ || exit 255
 
