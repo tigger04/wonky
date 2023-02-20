@@ -121,6 +121,10 @@ else
                 # declare -p category_moji count_category_name count_category
                 printf '%s%s' "${category_moji[$count_category_name]}" "$count_category"
             fi
+
+            # add a space between if there are multiple count requests (pedantic me)
+            [ -n "$2" ] && [[ $2 =~ -count$ ]] && printf ' '
+
         else
             if [ $(get_category "$1" | wc -l) -gt 0 ] ; then
                 [ -n "$multiple_categories_selected" ] && echo "-->$1"
