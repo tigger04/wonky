@@ -45,8 +45,9 @@ for dir in "$@"; do
         gitcap_lines=$( wc -l < $gitcap )
         
         if [ -e $gitcap.error ] && [ $(wc -c < $gitcap.error) -gt 0 ]; then
-            color="$blue"
-            info=""
+            continue
+            # color="$blue"
+            # info=""
         else
             if [ $gitcap_lines -eq 0 ] ; then
                 color="${bigreen}"
