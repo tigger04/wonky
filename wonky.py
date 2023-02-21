@@ -117,9 +117,9 @@ class Window(QWidget,):
 
                 #  bgColor = "",
         # self.setStyleSheet("background-color: " + self.bgColor + "; border:0px;")
-        self.setStyleSheet("background-color: rgba(" + str(bgColor.red()) + "," + str(bgColor.green()) + "," + str(bgColor.blue()) + "," + str(bgColor.alpha()) + "); border:0px;")
+        self.setStyleSheet("background-color: rgba(" + str(self.bgColor.red()) + "," + str(self.bgColor.green()) + "," + str(self.bgColor.blue()) + "," + str(self.bgColor.alpha()) + "); border:0px;")
 
-        self.setAttribute(Qt.WA_TranslucentBackground)
+        # self.setAttribute(Qt.WA_TranslucentBackground)
 
         self.command=command
         self.cmdOutputType=outputType
@@ -475,6 +475,7 @@ async def setmeup():
                                     ],
                         # fontsize = 15,
                         # font="Bohemian Typewriter",
+                        bgColor = QColor(100,100,100,0),
                         autoresize=False,
                         )
 
