@@ -307,7 +307,7 @@ async def setmeup():
                      command=[sys.path[0] + '/tugenda'],
                      outputType=OutputType.PLAINTEXT,
                      period=60,
-                     font="Bohemian Typewriter",
+                     # font="Bohemian Typewriter",
                      textColor=QColor(255, 255, 255, 255),
                     )
 
@@ -418,7 +418,7 @@ async def setmeup():
     gitdisp = Window (  align = Alignment.TOPRIGHT,
                         top = 0.13,
                         right = 0,
-                        left = 0.1,
+                        left = 0.07,
                         # height = 250,
                         # width = 200,
                         period = 45,
@@ -430,8 +430,8 @@ async def setmeup():
                                     home + '/wonky',
                                     home + '/fonting',
                                     ],
-                        fontsize = 10,
-                        font="Bohemian Typewriter",
+                        # fontsize = 15,
+                        # font="Bohemian Typewriter",
                         autoresize=False,
                         )
 
