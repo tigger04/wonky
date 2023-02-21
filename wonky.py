@@ -80,6 +80,7 @@ class Window(QWidget,):
                  align = Alignment.TOPLEFT,
                  textAlign =  QtCore.Qt.AlignLeft,
                  textColor =  QColor(200, 200, 200, 127),
+                 bgColor = QColor(255,255,255,0),
                  font = "ProfontIIx Nerd Font Mono",
                  fontsize = 12,
                  title = "wonky",
@@ -111,9 +112,12 @@ class Window(QWidget,):
         self.setAlignedGeometry(app.primaryScreen(), 0.2, 0.2)
         
         self.textColor = textColor
+        self.bgColor = bgColor
         self.textAlign = textAlign
 
-        self.setStyleSheet("background-color: rgba(255,255,255,0%); border:0px;");
+                #  bgColor = "",
+        # self.setStyleSheet("background-color: " + self.bgColor + "; border:0px;")
+        self.setStyleSheet("background-color: rgba(" + str(bgColor.red()) + "," + str(bgColor.green()) + "," + str(bgColor.blue()) + "," + str(bgColor.alpha()) + "); border:0px;")
 
         self.setAttribute(Qt.WA_TranslucentBackground)
 
@@ -350,7 +354,7 @@ async def setmeup():
                      textColor=QColor(255, 255, 255, 255),
                     )
 
-    tugstats = Window (top=0.05, right=0,
+    tugstats = Window (top=0.02, right=0,
                        # height=250,
                        title="stats",
                        command=[sys.path[0] + "/system-stats"],
@@ -358,9 +362,9 @@ async def setmeup():
                        align=Alignment.TOPRIGHT,
                        outputType = OutputType.PLAINTEXT,
                        textColor=QColor(255, 255, 255, 255),
-                       font="Noto Color Emoji",
+                       font="Apple Color Emoji",
                        textAlign =  QtCore.Qt.AlignRight,
-                       autoresize = False,
+                       autoresize = True,
                        )
 
     weather = Window  ( align=Alignment.MIDDLECENTER,
