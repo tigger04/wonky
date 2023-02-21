@@ -7,7 +7,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import * 
 from PyQt5 import QtGui
 from PyQt5 import QtCore
-from PyQt5.QtCore import QMargins, QPoint, Qt
+from PyQt5.QtCore import QMargins, Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QVBoxLayout, QSizeGrip, QTextEdit
 import sys
 import time
@@ -16,6 +16,7 @@ import subprocess
 import asyncio
 from enum import Enum
 import datetime
+import random
 
 home = os.path.expanduser('~')
 
@@ -88,6 +89,8 @@ class Window(QWidget,):
 
         super().__init__()
 
+        self.isActive = False
+
         self.setWindowTitle(title)
         self.prefAlign = align
         self.autoresize = autoresize
@@ -122,7 +125,13 @@ class Window(QWidget,):
         op.setOpacity(1) #0 to 1 will cause the fade effect to kick in
         self.setGraphicsEffect(op)
         
-        flags = QtCore.Qt.WindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnBottomHint | QtCore.Qt.CustomizeWindowHint | QtCore.Qt.BypassWindowManagerHint)
+        if sys.platform.startswith("darwin"):
+            print("setting window flags for DARWIN")
+            flags = QtCore.Qt.WindowFlags(QtCore.Qt.WindowStaysOnBottomHint | QtCore.Qt.FramelessWindowHint |  QtCore.Qt.CustomizeWindowHint )
+        else:
+            print("setting window flags for non-DARWIN hopefully linux lol")
+            # TODO: something explicit for Linux depending on whether a tiling window manager is being used
+            flags = QtCore.Qt.WindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnBottomHint | QtCore.Qt.CustomizeWindowHint | QtCore.Qt.BypassWindowManagerHint)
 
         # flags = QtCore.Qt.WindowFlags(QtCore.Qt.BypassWindowManagerHint)
 
@@ -152,7 +161,7 @@ class Window(QWidget,):
         vboxlayout.addWidget(self.textEdit)
 
         self.setLayout(vboxlayout)
-        self.show()
+        # self.show()
         
         self.ansi = Ansi2HTMLConverter()
 
@@ -168,6 +177,40 @@ class Window(QWidget,):
     # def getHeight(self):
     #     return self.height
 
+    def hideEvent(self, event):
+        # doesn't work on macos
+        sleepfor=random.uniform(1.0,3.0)
+        print("hideEvent triggered, will sleep for")
+        print(sleepfor)
+        asyncio.sleep(sleepfor)
+        self.setVisible(True)
+        self.show()
+
+    def changeEvent(self, event):
+        if self.isActive:
+            print("something changed while ACTIVE")
+            if self.isVisible():
+                print ("but i am still visible")
+            else:
+                print("i am no longer visible!")
+            self.check_state()
+        else:
+            print("something changed while inactive")
+
+    async def check_state(self):
+        if self.windowState() == Qt.WindowMinimized:
+            print ("i am somehow minimized ... attempting to restore")
+            # Window is minimised. Restore it.
+            self.setWindowState(Qt.WindowNoState)
+        else:
+            print ("i am not minimized")
+
+    def closeEvent(self, event):
+        print("I was closed")
+
+    def actionEvent(self, event):
+        print("some action occurred")
+    
     def setAlignedGeometry(self, screen, width, height):
 
         screenW = screen.size().width()
@@ -232,15 +275,22 @@ class Window(QWidget,):
     def autoResize(self):
         self.textEdit.document().setTextWidth(self.textEdit.viewport().width())
         margins = self.textEdit.contentsMargins()
-        height = int(self.textEdit.document().size().height() + margins.top() + margins.bottom())
-        width = int(self.textEdit.document().size().width() + margins.left() + margins.right())
-        # self.setFixedHeight(height)
+        height = int(self.textEdit.document().size().height() + margins.top() + margins.bottom() + self.prefmargin *2)
+        width = int(self.textEdit.document().size().width() + margins.left() + margins.right() + self.prefmargin*2)
+        
         self.setAlignedGeometry(app.primaryScreen(), width, height)
 
     async def start(self):
-        if self.autoresize:
-            self.refresh()
-            self.autoResize()
+        # if self.autoresize:
+        #     self.refresh()
+        #     self.autoResize()
+        self.show()
+        self.isActive = True
+
+        # loop = asyncio.get_event_loop()
+        # loop.call_later(10, self.check_state())
+        # not callable ^^
+
         while True:
             self.refresh()
 
@@ -249,23 +299,8 @@ class Window(QWidget,):
 
             await asyncio.sleep(self.period) 
 
-    # def mousePressEvent(self, event):
-    #     self.oldPosition = event.globalPos()
-
-    # def mouseMoveEvent(self, event):
-    #     delta = QPoint(event.globalPos() - self.oldPosition)
-    #     self.move(self.x() + delta.x(), self.y() + delta.y())
-    #     self.oldPosition = event.globalPos()
- 
     def refresh(self):
-
-        # TODO: relative paths
         displayText=subprocess.run(self.command, stdout=subprocess.PIPE).stdout.decode('utf-8')
-        # agenda=subprocess.run([os.path.expanduser('~/wonky/tugenda'), 'today', 'now', 'next'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-        # # agenda=subprocess.run([os.path.expanduser('~/wonky/tugenda'),], stdout=subprocess.PIPE).stdout.decode('utf-8')
-        # calendar=subprocess.run([os.path.expanduser('~/wonky/calendar.lua')], stdout=subprocess.PIPE).stdout.decode('utf-8')
-        # weather=subprocess.run([os.path.expanduser('~/wonky/weather'), '--city', '--today'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-        # gitstatus=subprocess.run([os.path.expanduser('~/wonky/quick-git-status'), os.path.expanduser('~/bin'), os.path.expanduser('~/dotfiles'), os.path.expanduser('~/org'), os.path.expanduser('~/fonting'), os.path.expanduser('~/wonky') ], stdout=subprocess.PIPE).stdout.decode('utf-8')
 
         match self.cmdOutputType:
             case OutputType.PLAINTEXT:
@@ -275,17 +310,11 @@ class Window(QWidget,):
             # case OutputType.HTML:
                 # default
             
-            
-        self.textEdit.clear();
+        self.textEdit.clear()
         self.textEdit.document().setDocumentMargin(self.prefmargin)
         self.textEdit.insertHtml(displayText)
-        # self.textEdit.insertPlainText('\n')
-        # self.textEdit.insertHtml(calendar)
-        # self.textEdit.insertPlainText('\n')
-        # self.textEdit.insertHtml(self.ansi.convert(gitstatus))
 
         self.textEdit.selectAll()
-
         self.textEdit.setCurrentFont(self.font)
 
         if self.cmdOutputType == OutputType.PLAINTEXT:
@@ -295,8 +324,18 @@ class Window(QWidget,):
 
         self.textEdit.moveCursor(QtGui.QTextCursor.Start)
 
-        QApplication.processEvents() #update gui for pyqt
-            # time.sleep(0.001)
+        # the mysterious error:
+        # QPainter::begin: A paint device can only be painted by one painter at a time.
+        # QPainter::translate: Painter not active
+        # attempted -> bit of a hack to stop all the windows trying to draw at the same time
+        # asyncio.sleep(random.uniform(0.0,1.0))
+        # then
+        # asyncio.sleep(random.uniform(0.0,10.0))
+        # then
+        # time.sleep(0.1)
+        # --> turns out app.processEvents() is not the culprit
+        # TODO: check on x86 - maybe this error is constrained to ARM?
+        app.processEvents() #update gui for pyqt
  
 async def setmeup():
     agenda = Window( top=0.05, left=0.03,
@@ -355,7 +394,7 @@ async def setmeup():
                              command=[sys.path[0] + '/weather', '--wonkydetail'],
                              period=60,
                              bottom = 0,
-                             margin = 30,
+                            #  margin = 30,
                              fontsize = 14,
                              font = "White Rabbit",
                              textAlign = QtCore.Qt.AlignCenter,
@@ -402,7 +441,7 @@ async def setmeup():
                         outputType = OutputType.PLAINTEXT,
                         )
 
-    monthdisp = Window (top=0.135,
+    monthdisp = Window (top=0.12,
                         # width=900, height=80,
                         align=Alignment.TOPCENTER,
                         title="date",
