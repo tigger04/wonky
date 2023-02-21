@@ -346,12 +346,14 @@ async def setmeup():
                      # width = 400,
                      # height = 705,
                      maxheight=0.65,
+                     maxwidth=0.25,
                      title="agenda",
                      command=[sys.path[0] + '/tugenda'],
                      outputType=OutputType.PLAINTEXT,
                      period=60,
                      # font="Bohemian Typewriter",
                      textColor=QColor(255, 255, 255, 255),
+                     bgColor = QColor(0,0,0,30),
                     )
 
     tugstats = Window (top=0.02, right=0,
@@ -410,10 +412,12 @@ async def setmeup():
     calendar = Window ( align=Alignment.BOTTOMLEFT,
                         left = 0.03, bottom = 0.05,
                         # height=300,
+                        maxwidth=0.15,
                         outputType = OutputType.HTML,
                         command=[sys.path[0] + '/calendar.lua'],
                         period=300,
                         autoresize = True,
+                        bgColor = QColor(0,0,0,30),
                         )
 
     timedisp = Window ( bottom=0,
