@@ -353,7 +353,7 @@ async def setmeup():
                      period=60,
                      # font="Bohemian Typewriter",
                      textColor=QColor(255, 255, 255, 255),
-                     bgColor = QColor(0,0,0,30),
+                    #  bgColor = QColor(0,0,0,30),
                     )
 
     tugstats = Window (top=0.02, right=0,
@@ -417,7 +417,7 @@ async def setmeup():
                         command=[sys.path[0] + '/calendar.lua'],
                         period=300,
                         autoresize = True,
-                        bgColor = QColor(0,0,0,30),
+                        # bgColor = QColor(0,0,0,30),
                         )
 
     timedisp = Window ( bottom=0,
@@ -479,7 +479,7 @@ async def setmeup():
                                     ],
                         # fontsize = 15,
                         # font="Bohemian Typewriter",
-                        bgColor = QColor(100,100,100,0),
+                        # bgColor = QColor(100,100,100,50),
                         autoresize=False,
                         )
 
