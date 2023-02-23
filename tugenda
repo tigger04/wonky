@@ -17,7 +17,7 @@ fi
 
 server_not_running_or_error () {
 
-    if pgrep emacs >/dev/null 2>&1; then
+    if pgrep -i emacs >/dev/null 2>&1; then
         emacsclient -e '(org-store-agenda-views)'
     else
         echo "Emacs server not running"
