@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+priorities_file=~/org/priorities.txt
+
+# show random n random priorities from $priorities_file (default 3)
+shuf "$priorities_file" | head -n ${1:-3}
