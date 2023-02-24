@@ -3,6 +3,9 @@
 #shellcheck source=helper.sh
 source ~/bin/helper.sh
 
+nodate='+1'
+[ -n "$1" ] && [[ "$1" == "--nodate" ]] && nodate='+3' && shift
+
 declare -A category_moji
 category_moji[inbox]='🌟'
 category_moji[today]='⭕'
@@ -136,4 +139,4 @@ else
         shift
 
     done
-fi | sed -E -f "$0.sed"
+fi | sed -E -f "$0.sed" | tail -n "${nodate}"
