@@ -353,14 +353,14 @@ async def setmeup():
     agenda = Window(top=0.05, left=0.03,
                     # width = 400,
                     # height = 705,
-                    maxheight=0.35,
+                    maxheight=0.6,
                     maxwidth=0.25,
                     title="agenda",
                     command=[sys.path[0] + '/tugenda', '--nodate'],
                     outputType=OutputType.PLAINTEXT,
                     period=60,
                     # font="Bohemian Typewriter",
-                    textColor=QColor(255, 255, 255, 255),
+                    textColor=QColor(255, 255, 255, 120),
                     #  bgColor = QColor(0,0,0,30),
                     )
 
