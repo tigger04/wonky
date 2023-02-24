@@ -449,7 +449,7 @@ async def setmeup():
     calendar = Window(align=Alignment.BOTTOMLEFT,
                       left=0.03, bottom=0.05,
                       # height=300,
-                      maxwidth=0.15,
+                      maxwidth=0.20,
                       outputType=OutputType.HTML,
                       command=[sys.path[0] + '/calendar.lua'],
                       period=300,
