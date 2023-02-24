@@ -123,8 +123,6 @@ class Window(QWidget,):
         self.setStyleSheet("background-color: rgba(" + str(self.bgColor.red()) + "," + str(self.bgColor.green()
                                                                                            ) + "," + str(self.bgColor.blue()) + "," + str(self.bgColor.alpha()) + "); border:0px;")
 
-        # self.setAttribute(Qt.WA_TranslucentBackground)
-
         self.command = command
         self.cmdOutputType = outputType
         self.period = period
@@ -142,8 +140,8 @@ class Window(QWidget,):
             # TODO: something explicit for Linux depending on whether a tiling window manager is being used
             flags = QtCore.Qt.WindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnBottomHint |
                                           QtCore.Qt.CustomizeWindowHint | QtCore.Qt.BypassWindowManagerHint)
+            self.setAttribute(Qt.WA_TranslucentBackground)
 
-        # flags = QtCore.Qt.WindowFlags(QtCore.Qt.BypassWindowManagerHint)
 
         self.setWindowFlags(flags)
         vboxlayout = QGridLayout()
@@ -475,20 +473,19 @@ async def setmeup():
                       )
 
     datedisp = Window(top=0.02,
-                      # width=900,
                       align=Alignment.TOPCENTER,
                       title="date",
                       command=["/bin/date", "+%A %-d"],
                       period=60,
                       font="Bohemian Typewriter",
-                      fontsize=100,
+                      fontsize=85,
                       textAlign=QtCore.Qt.AlignCenter,
                       textColor=QColor(255, 255, 255, 90),
                       autoresize=True,
                       outputType=OutputType.PLAINTEXT,
                       )
 
-    monthdisp = Window(top=0.12,
+    monthdisp = Window(top=0.125,
                        # width=900, height=80,
                        align=Alignment.TOPCENTER,
                        title="date",
