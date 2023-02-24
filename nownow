@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+nowtasks="$(tugenda now | head -n "${1:-1}")"
+
+[ -z "$nowtasks" ] && exit 0
+
+echo "$nowtasks" | tr '\n' ' '

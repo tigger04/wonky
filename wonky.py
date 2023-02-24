@@ -379,6 +379,21 @@ async def setmeup():
         autoresize=True,
     )
 
+    nowgenda= Window(
+        top = 0.3,
+        title="nowgenda",
+        maxwidth=0.3,
+        command=[home + '/wonky/nownow'],
+        outputType=OutputType.PLAINTEXT,
+        period=300,
+        align=Alignment.TOPCENTER,
+        textAlign=QtCore.Qt.AlignCenter,
+        fontsize=20,
+        textColor=QColor(0, 0, 0, 255),
+        bgColor = QColor(255,255,0,180),
+        autoresize=True,
+    )
+
     tugstats = Window(top=0.03, right=0,
                       # height=250,
                       title="stats",
@@ -518,6 +533,7 @@ async def setmeup():
                          weatherdetail2.start(),
                          gitdisp.start(),
                          priorities.start(),
+                        #  nowgenda.start(),
                          )
 
 
