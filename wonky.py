@@ -368,7 +368,7 @@ async def setmeup():
         maxwidth=0.3,
         command=[home + '/wonky/priorities', '1'],
         outputType=OutputType.PLAINTEXT,
-        period=300,
+        period=60,
         align=Alignment.TOPCENTER,
         textAlign=QtCore.Qt.AlignCenter,
         fontsize=20,
