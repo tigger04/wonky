@@ -2,15 +2,16 @@
 
 #shellcheck source=helper.sh
 source ~/bin/helper.sh
+source ~/.colours.sh
 
 # notify "$0 $*"
 
 gitcap=$(mktemp)
 touch $gitcap
 
-fancymap=( '\U1F10C' '\U278A' '\U278B' '\U278C' '\U278D' '\U278E' '\U278F' '\U2790' '\U2791' '\U2792' '\U2793' )
-plus='⊕'
-ok="✔"
+# fancymap=( '\U1F10C' '\U278A' '\U278B' '\U278C' '\U278D' '\U278E' '\U278F' '\U2790' '\U2791' '\U2792' '\U2793' )
+# plus='+'
+ok="✅"
 
 use_one_line=false
 only_show_status=false
@@ -43,6 +44,7 @@ for dir in "$@"; do
         git status --porcelain >$gitcap 2>$gitcap.error
         # gitcap_chars=$( wc -c < $gitcap )
         gitcap_lines=$( wc -l < $gitcap )
+        gitcap_lines=$((gitcap_lines + 0)) # remove spacing
         
         if [ -e $gitcap.error ] && [ $(wc -c < $gitcap.error) -gt 0 ]; then
             continue
@@ -53,11 +55,11 @@ for dir in "$@"; do
                 color="${bigreen}"
                 info="$ok"
             elif [ $gitcap_lines -gt 0 ] ;then
-                color="$yellow"
+                color="${black}${on_yellow}"
                 if [ $gitcap_lines -ge 10 ]; then
-                    info="${fancymap[10]}$plus"
+                    info="(10+)"
                 else
-                    info="${fancymap[$gitcap_lines]}"
+                    info="(${gitcap_lines})"
                 fi
             else
                 color="$orange"
@@ -84,7 +86,7 @@ for dir in "$@"; do
     if $only_show_status; then
         echo -ne "${color}${info}${ansi_off}"
     else
-        echo -ne "${color}${info} ${nice_dir}${ansi_off} "
+        echo -ne "${color}${info}${nice_dir}${ansi_off} "
         $use_one_line || echo
     fi
 done
