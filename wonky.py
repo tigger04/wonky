@@ -161,7 +161,16 @@ class Window(QWidget,):
         self.textEdit.setReadOnly(True)
 
         self.db = QFontDatabase()
-        self.font = self.db.font(font, "", fontsize)
+        # self.font = self.db.font(font)
+        self.font = QFont(font)
+
+        if isinstance(fontsize, int):
+            self.font.setPointSize(fontsize)
+        else:
+            if fontsize < 1:
+                fontsize = screenH * fontsize
+
+            self.font.setPixelSize(int(round(fontsize)))
 
         if not linewrap:
             self.textEdit.setLineWrapMode(QTextEdit.NoWrap)
@@ -371,7 +380,7 @@ async def setmeup():
         period=60,
         align=Alignment.TOPCENTER,
         textAlign=QtCore.Qt.AlignCenter,
-        fontsize=20,
+        fontsize=0.014,
         textColor=QColor(255, 255, 255, 255),
         bgColor = QColor(0,0,0,30),
         autoresize=True,
@@ -410,8 +419,8 @@ async def setmeup():
                      bottom=0.15,
                      command=[sys.path[0] + '/weather', '%condition', ],
                      period=60,
-                     font='Noto Color Emoji',
-                     fontsize=200,
+                     font='Apple Color Emoji',
+                     fontsize=0.15,
                      textAlign=QtCore.Qt.AlignCenter,
                      autoresize=True,
                      )
@@ -439,7 +448,7 @@ async def setmeup():
                             period=60,
                             bottom=0,
                             #  margin = 30,
-                            fontsize=14,
+                            fontsize=0.01,
                             font="White Rabbit",
                             textAlign=QtCore.Qt.AlignCenter,
                             textColor=QColor(200, 200, 200, 255),
@@ -465,7 +474,7 @@ async def setmeup():
                       command=[sys.path[0] + "/showtime", "-t",],
                       period=60,
                       font="Bohemian Typewriter",
-                      fontsize=160,
+                      fontsize=0.12,
                       textAlign=QtCore.Qt.AlignCenter,
                       textColor=QColor(200, 200, 200, 90),
                       autoresize=True,
@@ -478,7 +487,7 @@ async def setmeup():
                       command=["/bin/date", "+%A %-d"],
                       period=60,
                       font="Bohemian Typewriter",
-                      fontsize=85,
+                      fontsize=0.1,
                       textAlign=QtCore.Qt.AlignCenter,
                       textColor=QColor(255, 255, 255, 90),
                       autoresize=True,
@@ -492,7 +501,7 @@ async def setmeup():
                        command=["/bin/date", "+%B %Y"],
                        period=60,
                        font="Bohemian Typewriter",
-                       fontsize=20,
+                       fontsize=0.02,
                        textAlign=QtCore.Qt.AlignCenter,
                        textColor=QColor(255, 255, 255, 127),
                        outputType=OutputType.PLAINTEXT,
@@ -525,7 +534,7 @@ async def setmeup():
                          tugstats.start(),
                          calendar.start(),
                          agenda.start(),
-                         weather.start(),
+                        #  weather.start(),
                          # weatherdetail.start(),
                          weatherdetail2.start(),
                          gitdisp.start(),
