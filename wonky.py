@@ -449,7 +449,7 @@ async def setmeup():
                             period=60,
                             bottom=0,
                             #  margin = 30,
-                            fontsize=0.012,
+                            # fontsize=0.012,
                             font="White Rabbit",
                             textAlign=QtCore.Qt.AlignCenter,
                             textColor=QColor(200, 200, 200, 255),
@@ -463,7 +463,7 @@ async def setmeup():
                       command=[sys.path[0] + '/calendar.lua'],
                       period=300,
                       autoresize=True,
-                      fontsize=0.012,
+                      fontsize=16,
                       )
 
     timedisp = Window(bottom=0,
@@ -511,7 +511,7 @@ async def setmeup():
                      top=0.13,
                      right=0,
                      left=0.1,
-                     fontsize=0.008,
+                    #  fontsize=14,
                      period=45,
                      outputType=OutputType.ANSI,
                      command=[sys.path[0] + '/quick-git-status',
