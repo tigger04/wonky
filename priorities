@@ -3,10 +3,21 @@
 priorities_file=~/org/priorities.txt
 now_doing="$(tugenda now)"
 
-if [ -n "$now_doing" ]; then
-   echo "${now_doing^^}" | head -n 1
+oneline=false
+[ $# -gt 0 ] && [[ "$1" == "-1" ]] && oneline=true && shift
+
+doit() {
+   if [ -n "$now_doing" ]; then
+      echo "${now_doing^^}" | head -n ${1:-3}
+   else
+      # show random n random priorities from $priorities_file (default 1)
+      shuf "$priorities_file" | head -n ${1:-3}
+   # cat "$priorities_file" | head -n ${1:-3}
+   fi
+}
+
+if $oneline; then
+   doit "$@" | tr '\n' ' '
 else
-   # show random n random priorities from $priorities_file (default 1)
-   shuf "$priorities_file" | head -n ${1:-1}
-# cat "$priorities_file" | head -n ${1:-3}
+   doit "$@" 
 fi
