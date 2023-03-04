@@ -358,8 +358,7 @@ class Window(QWidget,):
 
 async def setmeup():
     agenda = Window(top=0.05, left=0.03,
-                    # width = 400,
-                    # height = 705,
+                    margin=10,
                     maxheight=0.5,
                     maxwidth=0.15,
                     title="agenda",
