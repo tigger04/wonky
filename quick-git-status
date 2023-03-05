@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
 
+### why did i do this ... meant to do it for alladd etc ... ###
+### but i'll implement it in gui-launcher.py instead
+if [ $# -gt 0 ] && [[ "$1" == "--notify" ]]; then
+    shift
+    export disable_colors=true
+    qgs_output=$(mktemp).log
+    "$0" "$@" > $qgs_output 2>&1
+    ~/bin/notify < $qgs_output
+    sleep 3
+    rm $qgs_output
+    exit 0
+fi
+
 #shellcheck source=helper.sh
 source ~/bin/helper.sh
 source ~/.colours.sh
