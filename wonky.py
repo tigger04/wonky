@@ -374,7 +374,7 @@ async def setmeup():
         top = 0.2,
         title="priorities",
         maxwidth=0.3,
-        command=[home + '/wonky/priorities', '-1', '1'],
+        command=[home + '/wonky/priorities', '5'],
         outputType=OutputType.PLAINTEXT,
         period=60,
         align=Alignment.TOPCENTER,
