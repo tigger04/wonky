@@ -142,7 +142,6 @@ class Window(QWidget,):
                                           QtCore.Qt.CustomizeWindowHint | QtCore.Qt.BypassWindowManagerHint)
             self.setAttribute(Qt.WA_TranslucentBackground)
 
-
         self.setWindowFlags(flags)
         vboxlayout = QGridLayout()
 
@@ -282,9 +281,9 @@ class Window(QWidget,):
         self.textEdit.document().setTextWidth(self.textEdit.viewport().width())
         margins = self.textEdit.contentsMargins()
         height = int(self.textEdit.document().size().height() +
-                     margins.top() + margins.bottom() )
+                     margins.top() + margins.bottom())
         width = int(self.textEdit.document().size().width() +
-                    margins.left() + margins.right() )
+                    margins.left() + margins.right())
 
         self.setAlignedGeometry(app.primaryScreen(), width, height)
 
@@ -305,7 +304,7 @@ class Window(QWidget,):
 
             self.show()
             self.isActive = True
-            
+
             await asyncio.sleep(self.period)
 
     def refresh(self):
@@ -321,12 +320,12 @@ class Window(QWidget,):
             # case OutputType.HTML:
                 # default
 
-        # print('-----------------------------------------------')
-        # print("displayText for command:")
-        # print(self.command)
-        # print('-----------------------------------------------')
-        # print(displayText)
-        # print('-----------------------------------------------')
+        print('-----------------------------------------------')
+        print("displayText for command:")
+        print(self.command)
+        print('-----------------------------------------------')
+        print(displayText)
+        print('-----------------------------------------------')
 
         self.textEdit.clear()
         self.textEdit.document().setDocumentMargin(self.prefmargin)
@@ -367,26 +366,26 @@ async def setmeup():
                     period=60,
                     fontsize=16,
                     textColor=QColor(255, 255, 255, 190),
-                    bgColor = QColor(0,0,0,30),
+                    bgColor=QColor(0, 0, 0, 30),
                     )
 
     priorities = Window(
-        top = 0.2,
+        top=0.2,
         title="priorities",
         maxwidth=0.3,
-        command=[home + '/wonky/priorities', '-1', '1'],
+        command=[home + '/wonky/priorities', '3'],
         outputType=OutputType.PLAINTEXT,
         period=60,
         align=Alignment.TOPCENTER,
         textAlign=QtCore.Qt.AlignCenter,
         fontsize=0.014,
         textColor=QColor(255, 255, 255, 255),
-        bgColor = QColor(0,0,0,30),
+        bgColor=QColor(0, 0, 0, 30),
         autoresize=True,
     )
 
-    nowgenda= Window(
-        top = 0.3,
+    nowgenda = Window(
+        top=0.3,
         title="nowgenda",
         maxwidth=0.3,
         command=[home + '/wonky/nownow'],
@@ -396,7 +395,7 @@ async def setmeup():
         textAlign=QtCore.Qt.AlignCenter,
         fontsize=20,
         textColor=QColor(0, 0, 0, 255),
-        bgColor = QColor(255,255,0,180),
+        bgColor=QColor(255, 255, 0, 180),
         autoresize=True,
     )
 
@@ -510,16 +509,16 @@ async def setmeup():
                      top=0.13,
                      right=0,
                      left=0.1,
-                    #  fontsize=14,
+                     #  fontsize=14,
                      period=45,
                      outputType=OutputType.ANSI,
                      command=[sys.path[0] + '/quick-git-status',
-                            '--env'
-                            #   home + '/bin',
-                            #   home + '/dotfiles',
-                            #   home + '/org',
-                            #   home + '/wonky',
-                            #   home + '/fonting',
+                              '--env'
+                              #   home + '/bin',
+                              #   home + '/dotfiles',
+                              #   home + '/org',
+                              #   home + '/wonky',
+                              #   home + '/fonting',
                               ],
                      # fontsize = 15,
                      # font="Bohemian Typewriter",
@@ -533,12 +532,12 @@ async def setmeup():
                          tugstats.start(),
                          calendar.start(),
                          agenda.start(),
-                        #  weather.start(),
+                         #  weather.start(),
                          # weatherdetail.start(),
                          weatherdetail2.start(),
                          gitdisp.start(),
                          priorities.start(),
-                        #  nowgenda.start(),
+                         #  nowgenda.start(),
                          )
 
 
