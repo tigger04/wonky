@@ -85,7 +85,7 @@ class Window(QWidget,):
                  textColor=QColor(200, 200, 200, 127),
                  bgColor=QColor(255, 255, 255, 0),
                  font="agave",
-                 fontsize=14,
+                 fontsize=18,
                  title="wonky",
                  autoresize=True,
                  linewrap=False,
