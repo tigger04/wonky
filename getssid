@@ -1,13 +1,18 @@
 #!/usr/bin/env bash
 
-wlan0_info="$(iwconfig 2>/dev/null | grep wlan0)"
+[ -n "$_os" ] || _os=$(uname)
+unset ssid
 
-
-if [[ $wlan0_info =~ ESSID:\"(.*)\" ]]; then
-    ssid="${BASH_REMATCH[1]}"
+if [[ "$_os" == "Darwin" ]]; then
+    wlan_info="$(/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I | grep -E '\<SSID:')"
+    if [[ $wlan_info =~ SSID:[[:space:]]*(.*)$ ]]; then
+        ssid="${BASH_REMATCH[1]}"
+    fi
 else
-    unset ssid
+    wlan_info="$(iwconfig 2>/dev/null | grep wlan0)"
+    if [[ $wlan_info =~ ESSID:\"(.*)\" ]]; then
+        ssid="${BASH_REMATCH[1]}"
+    fi
 fi
 
 echo "$ssid"
-
