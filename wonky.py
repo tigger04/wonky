@@ -25,6 +25,7 @@ import asyncio
 from enum import Enum
 import datetime
 import random
+from math import floor, ceil
 
 home = os.path.expanduser('~')
 
@@ -261,11 +262,11 @@ class Window(QWidget,):
         if self.maxheight and height > self.maxheight:
             height = self.maxheight
 
-        if width <= 1:
-            width = screenW * width
+        if float(width) <= 1.0:
+            width = ceil(float(screenW) * float(width))
 
-        if height <= 1:
-            height = screenH * height
+        if float(height) <= 1.0:
+            height = ceil(float(screenH) * float(height))
 
         match self.prefAlign:
             case Alignment.TOPLEFT:
@@ -310,9 +311,10 @@ class Window(QWidget,):
         self.textEdit.document().setTextWidth(self.textEdit.viewport().width())
         margins = self.textEdit.contentsMargins()
         height = int(self.textEdit.document().size().height() +
-                     margins.top() + margins.bottom())
+                     self.prefmargin * 2)
+        #  margins.top() + margins.bottom())
         width = int(self.textEdit.document().size().width() +
-                    margins.left() + margins.right())
+                    self.prefmargin * 2)
 
         self.setAlignedGeometry(app.primaryScreen(), width, height)
 
@@ -344,7 +346,7 @@ class Window(QWidget,):
                 # default
 
         self.textEdit.clear()
-        self.textEdit.document().setDocumentMargin(self.prefmargin)
+        # self.textEdit.document().setDocumentMargin(self.prefmargin)
         self.textEdit.insertHtml(displayText)
 
         self.textEdit.selectAll()
@@ -360,8 +362,7 @@ class Window(QWidget,):
         if self.autoresize:
             self.autoResize()
 
-        if not self.isVisible():
-            self.show()
+        self.show()
 
         # the mysterious error:
         # QPainter::begin: A paint device can only be painted by one painter at a time.
