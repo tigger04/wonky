@@ -7,10 +7,18 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtGui
 from PyQt5 import QtCore
-from PyQt5.QtCore import QMargins, Qt
+from PyQt5.QtCore import (
+    Qt,
+    QObject,
+    QThread,
+    pyqtSignal,
+    QMargins,
+)
+
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QVBoxLayout, QSizeGrip, QTextEdit
 import sys
 import time
+from time import sleep
 import os
 import subprocess
 import asyncio
@@ -65,6 +73,42 @@ class Alignment(Enum):
     TOP = 13
     MIDDLE = 14
     BOTTOM = 15
+
+
+class Worker(QObject):
+
+    def __init__(self,
+                 command,
+                 period
+                 ):
+        super().__init__()
+
+        self.command = command
+        self.period = period
+        self.currentOutput = ""
+
+    finished = pyqtSignal()
+    progress = pyqtSignal(str)
+
+    def run(self):
+        """Async run task"""
+        while True:
+            stdout = subprocess.run(
+                self.command, stdout=subprocess.PIPE).stdout.decode('utf-8').rstrip()
+
+            if stdout != self.currentOutput:
+
+                print('-----------------------------------------------')
+                print("output for command changed:")
+                print(self.command)
+                print('-----------------------------------------------')
+                print(stdout)
+                print('-----------------------------------------------')
+
+                self.currentOutput = stdout
+                self.progress.emit(self.currentOutput)
+
+            sleep(self.period)
 
 
 class Window(QWidget,):
@@ -178,18 +222,12 @@ class Window(QWidget,):
         vboxlayout.addWidget(self.textEdit)
 
         self.setLayout(vboxlayout)
-        # self.show()
 
         self.ansi = Ansi2HTMLConverter()
 
     def hideEvent(self, event):
         # doesn't work on macos
-        sleepfor = random.uniform(1.0, 3.0)
-        print("hideEvent triggered, will sleep for")
-        print(sleepfor)
-        asyncio.sleep(sleepfor)
-        self.setVisible(True)
-        self.show()
+        print("hideEvent triggered")
 
     def changeEvent(self, event):
         if self.isActive:
@@ -198,17 +236,8 @@ class Window(QWidget,):
                 print("but i am still visible")
             else:
                 print("i am no longer visible!")
-            self.check_state()
         else:
             print("something changed while inactive")
-
-    async def check_state(self):
-        if self.windowState() == Qt.WindowMinimized:
-            print("i am somehow minimized ... attempting to restore")
-            # Window is minimised. Restore it.
-            self.setWindowState(Qt.WindowNoState)
-        else:
-            print("i am not minimized")
 
     def closeEvent(self, event):
         print("I was closed")
@@ -287,29 +316,23 @@ class Window(QWidget,):
 
         self.setAlignedGeometry(app.primaryScreen(), width, height)
 
-    async def start(self):
-        # if self.autoresize:
-        #     self.refresh()
-        #     self.autoResize()
+    def start(self):
 
-        # loop = asyncio.get_event_loop()
-        # loop.call_later(10, self.check_state())
-        # not callable ^^
+        self.thread = QThread()
+        self.worker = Worker(
+            command=self.command,
+            period=self.period
+        )
+        self.worker.moveToThread(self.thread)
+        self.thread.started.connect(self.worker.run)
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+        self.worker.progress.connect(self.refresh)
 
-        while True:
-            self.refresh()
+        self.thread.start()
 
-            if self.autoresize:
-                self.autoResize()
-
-            self.show()
-            self.isActive = True
-
-            await asyncio.sleep(self.period)
-
-    def refresh(self):
-        displayText = subprocess.run(
-            self.command, stdout=subprocess.PIPE).stdout.decode('utf-8').rstrip()
+    def refresh(self, displayText):
 
         match self.cmdOutputType:
             case OutputType.PLAINTEXT:
@@ -319,13 +342,6 @@ class Window(QWidget,):
                 displayText = self.ansi.convert(displayText)
             # case OutputType.HTML:
                 # default
-
-        print('-----------------------------------------------')
-        print("displayText for command:")
-        print(self.command)
-        print('-----------------------------------------------')
-        print(displayText)
-        print('-----------------------------------------------')
 
         self.textEdit.clear()
         self.textEdit.document().setDocumentMargin(self.prefmargin)
@@ -341,6 +357,12 @@ class Window(QWidget,):
 
         self.textEdit.moveCursor(QtGui.QTextCursor.Start)
 
+        if self.autoresize:
+            self.autoResize()
+
+        if not self.isVisible():
+            self.show()
+
         # the mysterious error:
         # QPainter::begin: A paint device can only be painted by one painter at a time.
         # QPainter::translate: Painter not active
@@ -352,193 +374,190 @@ class Window(QWidget,):
         # time.sleep(0.1)
         # --> turns out app.processEvents() is not the culprit
         # TODO: check on x86 - maybe this error is constrained to ARM?
-        app.processEvents()  # update gui for pyqt
+        # app.processEvents()  # update gui for pyqt
 
 
-async def setmeup():
-    agenda = Window(top=0.05, left=0.03,
-                    margin=10,
-                    maxheight=0.5,
-                    maxwidth=0.15,
-                    title="agenda",
-                    command=[sys.path[0] + '/tugenda', '--nodate'],
-                    outputType=OutputType.PLAINTEXT,
-                    period=60,
-                    fontsize=16,
-                    textColor=QColor(255, 255, 255, 190),
-                    bgColor=QColor(0, 0, 0, 30),
-                    )
+agenda = Window(top=0.05, left=0.03,
+                margin=10,
+                maxheight=0.5,
+                maxwidth=0.15,
+                title="agenda",
+                command=[sys.path[0] + '/tugenda', '--nodate'],
+                outputType=OutputType.PLAINTEXT,
+                period=60,
+                fontsize=16,
+                textColor=QColor(255, 255, 255, 190),
+                bgColor=QColor(0, 0, 0, 30),
+                )
 
-    priorities = Window(
-        top=0.2,
-        title="priorities",
-        maxwidth=0.3,
-        command=[home + '/wonky/priorities', '3'],
-        outputType=OutputType.PLAINTEXT,
-        period=60,
-        align=Alignment.TOPCENTER,
-        textAlign=QtCore.Qt.AlignCenter,
-        fontsize=0.014,
-        textColor=QColor(255, 255, 255, 255),
-        bgColor=QColor(0, 0, 0, 30),
-        autoresize=True,
-    )
+priorities = Window(
+    top=0.2,
+    title="priorities",
+    maxwidth=0.3,
+    command=[home + '/wonky/priorities', '3'],
+    outputType=OutputType.PLAINTEXT,
+    period=60,
+    align=Alignment.TOPCENTER,
+    textAlign=QtCore.Qt.AlignCenter,
+    fontsize=0.014,
+    textColor=QColor(255, 255, 255, 255),
+    bgColor=QColor(0, 0, 0, 30),
+    autoresize=True,
+)
 
-    nowgenda = Window(
-        top=0.3,
-        title="nowgenda",
-        maxwidth=0.3,
-        command=[home + '/wonky/nownow'],
-        outputType=OutputType.PLAINTEXT,
-        period=300,
-        align=Alignment.TOPCENTER,
-        textAlign=QtCore.Qt.AlignCenter,
-        fontsize=20,
-        textColor=QColor(0, 0, 0, 255),
-        bgColor=QColor(255, 255, 0, 180),
-        autoresize=True,
-    )
+nowgenda = Window(
+    top=0.3,
+    title="nowgenda",
+    maxwidth=0.3,
+    command=[home + '/wonky/nownow'],
+    outputType=OutputType.PLAINTEXT,
+    period=300,
+    align=Alignment.TOPCENTER,
+    textAlign=QtCore.Qt.AlignCenter,
+    fontsize=20,
+    textColor=QColor(0, 0, 0, 255),
+    bgColor=QColor(255, 255, 0, 180),
+    autoresize=True,
+)
 
-    tugstats = Window(top=0.03, right=0,
-                      # height=250,
-                      title="stats",
-                      command=[sys.path[0] + "/system-stats"],
-                      period=4,
-                      align=Alignment.TOPRIGHT,
-                      outputType=OutputType.PLAINTEXT,
-                      textColor=QColor(255, 255, 255, 255),
-                      font="Apple Color Emoji",
-                      fontsize=0.01,
-                      textAlign=QtCore.Qt.AlignRight,
-                      autoresize=True,
-                      )
+tugstats = Window(top=0.03, right=0,
+                  # height=250,
+                  title="stats",
+                  command=[sys.path[0] + "/system-stats"],
+                  period=4,
+                  align=Alignment.TOPRIGHT,
+                  outputType=OutputType.PLAINTEXT,
+                  textColor=QColor(255, 255, 255, 255),
+                  font="Apple Color Emoji",
+                  fontsize=0.01,
+                  textAlign=QtCore.Qt.AlignRight,
+                  autoresize=True,
+                  )
 
-    weather = Window(align=Alignment.MIDDLECENTER,
-                     outputType=OutputType.PLAINTEXT,
-                     bottom=0.15,
-                     command=[sys.path[0] + '/weather', '%condition', ],
-                     period=60,
-                     font='Apple Color Emoji',
-                     fontsize=0.15,
-                     textAlign=QtCore.Qt.AlignCenter,
-                     autoresize=True,
-                     )
+weather = Window(align=Alignment.MIDDLECENTER,
+                 outputType=OutputType.PLAINTEXT,
+                 bottom=0.15,
+                 command=[sys.path[0] + '/weather', '%condition', ],
+                 period=60,
+                 font='Apple Color Emoji',
+                 fontsize=0.15,
+                 textAlign=QtCore.Qt.AlignCenter,
+                 autoresize=True,
+                 )
 
-    weatherdetail = Window(align=Alignment.MIDDLECENTER,
-                           outputType=OutputType.PLAINTEXT,
-                           top=0.03,
-                           bottom=0.15,
-                           # height=100,
-                           # width = 400,
-                           command=[sys.path[0] + '/weather',
-                                    '%feels', '%condition_desc'],
-                           period=60,
-                           font='bohemian typewriter',
-                           fontsize=30,
-                           textAlign=QtCore.Qt.AlignCenter,
-                           textColor=QColor(127, 127, 127, 255),
-                           autoresize=True,
-                           )
-
-    weatherdetail2 = Window(align=Alignment.BOTTOMCENTER,
-                            outputType=OutputType.PLAINTEXT,
-                            command=[sys.path[0] +
-                                     '/weather', '--wonkydetail'],
-                            period=60,
-                            bottom=0,
-                            #  margin = 30,
-                            # fontsize=0.012,
-                            font="White Rabbit",
-                            textAlign=QtCore.Qt.AlignCenter,
-                            textColor=QColor(200, 200, 200, 255),
-                            autoresize=True,
-                            )
-
-    calendar = Window(align=Alignment.BOTTOMLEFT,
-                      left=0.03, bottom=0.05,
-                      maxwidth=0.20,
-                      outputType=OutputType.HTML,
-                      command=[sys.path[0] + '/calendar.lua'],
-                      period=300,
-                      autoresize=True,
-                      fontsize=16,
-                      )
-
-    timedisp = Window(bottom=0,
-                      # margin=25,
-                      # width=900,
-                      align=Alignment.BOTTOMCENTER,
-                      title="time",
-                      command=[sys.path[0] + "/showtime", "-t",],
-                      period=60,
-                      font="Bohemian Typewriter",
-                      fontsize=0.18,
-                      textAlign=QtCore.Qt.AlignCenter,
-                      textColor=QColor(200, 200, 200, 90),
-                      autoresize=True,
-                      outputType=OutputType.PLAINTEXT,
-                      )
-
-    datedisp = Window(top=0.02,
-                      align=Alignment.TOPCENTER,
-                      title="date",
-                      command=["/bin/date", "+%A %-d"],
-                      period=60,
-                      font="Bohemian Typewriter",
-                      fontsize=0.1,
-                      textAlign=QtCore.Qt.AlignCenter,
-                      textColor=QColor(255, 255, 255, 90),
-                      autoresize=True,
-                      outputType=OutputType.PLAINTEXT,
-                      )
-
-    monthdisp = Window(top=0.125,
-                       # width=900, height=80,
-                       align=Alignment.TOPCENTER,
-                       title="date",
-                       command=["/bin/date", "+%B %Y"],
-                       period=60,
-                       font="Bohemian Typewriter",
-                       fontsize=0.02,
-                       textAlign=QtCore.Qt.AlignCenter,
-                       textColor=QColor(255, 255, 255, 127),
+weatherdetail = Window(align=Alignment.MIDDLECENTER,
                        outputType=OutputType.PLAINTEXT,
+                       top=0.03,
+                       bottom=0.15,
+                       # height=100,
+                       # width = 400,
+                       command=[sys.path[0] + '/weather',
+                                '%feels', '%condition_desc'],
+                       period=60,
+                       font='bohemian typewriter',
+                       fontsize=30,
+                       textAlign=QtCore.Qt.AlignCenter,
+                       textColor=QColor(127, 127, 127, 255),
+                       autoresize=True,
                        )
 
-    gitdisp = Window(align=Alignment.TOPRIGHT,
-                     top=0.13,
-                     right=0,
-                     left=0.1,
-                     #  fontsize=14,
-                     period=45,
-                     outputType=OutputType.ANSI,
-                     command=[sys.path[0] + '/quick-git-status',
-                              '--env'
-                              #   home + '/bin',
-                              #   home + '/dotfiles',
-                              #   home + '/org',
-                              #   home + '/wonky',
-                              #   home + '/fonting',
-                              ],
-                     # fontsize = 15,
-                     # font="Bohemian Typewriter",
-                     # bgColor = QColor(100,100,100,50),
-                     autoresize=False,
-                     )
+weatherdetail2 = Window(align=Alignment.BOTTOMCENTER,
+                        outputType=OutputType.PLAINTEXT,
+                        command=[sys.path[0] +
+                                 '/weather', '--wonkydetail'],
+                        period=60,
+                        bottom=0,
+                        #  margin = 30,
+                        # fontsize=0.012,
+                        font="White Rabbit",
+                        textAlign=QtCore.Qt.AlignCenter,
+                        textColor=QColor(200, 200, 200, 255),
+                        autoresize=True,
+                        )
 
-    await asyncio.gather(timedisp.start(),
-                         datedisp.start(),
-                         monthdisp.start(),
-                         tugstats.start(),
-                         calendar.start(),
-                         agenda.start(),
-                         #  weather.start(),
-                         # weatherdetail.start(),
-                         weatherdetail2.start(),
-                         gitdisp.start(),
-                         priorities.start(),
-                         #  nowgenda.start(),
-                         )
+calendar = Window(align=Alignment.BOTTOMLEFT,
+                  left=0.03, bottom=0.05,
+                  maxwidth=0.20,
+                  outputType=OutputType.HTML,
+                  command=[sys.path[0] + '/calendar.lua'],
+                  period=300,
+                  autoresize=True,
+                  fontsize=16,
+                  )
+
+timedisp = Window(bottom=0,
+                  align=Alignment.BOTTOMCENTER,
+                  title="time",
+                  command=[sys.path[0] + "/showtime", "-t",],
+                  period=60,
+                  font="Bohemian Typewriter",
+                  fontsize=0.18,
+                  textAlign=QtCore.Qt.AlignCenter,
+                  textColor=QColor(200, 200, 200, 90),
+                  autoresize=True,
+                  outputType=OutputType.PLAINTEXT,
+                  )
+
+datedisp = Window(top=0.02,
+                  align=Alignment.TOPCENTER,
+                  title="date",
+                  command=["/bin/date", "+%A %-d"],
+                  period=60,
+                  font="Bohemian Typewriter",
+                  fontsize=0.1,
+                  textAlign=QtCore.Qt.AlignCenter,
+                  textColor=QColor(255, 255, 255, 90),
+                  autoresize=True,
+                  outputType=OutputType.PLAINTEXT,
+                  )
+
+monthdisp = Window(top=0.125,
+                   # width=900, height=80,
+                   align=Alignment.TOPCENTER,
+                   title="date",
+                   command=["/bin/date", "+%B %Y"],
+                   period=60,
+                   font="Bohemian Typewriter",
+                   fontsize=0.02,
+                   textAlign=QtCore.Qt.AlignCenter,
+                   textColor=QColor(255, 255, 255, 127),
+                   outputType=OutputType.PLAINTEXT,
+                   )
+
+gitdisp = Window(align=Alignment.TOPRIGHT,
+                 top=0.13,
+                 right=0,
+                 left=0.1,
+                 #  fontsize=14,
+                 period=45,
+                 outputType=OutputType.ANSI,
+                 command=[sys.path[0] + '/quick-git-status',
+                          '--env'
+                          #   home + '/bin',
+                          #   home + '/dotfiles',
+                          #   home + '/org',
+                          #   home + '/wonky',
+                          #   home + '/fonting',
+                          ],
+                 # fontsize = 15,
+                 # font="Bohemian Typewriter",
+                 # bgColor = QColor(100,100,100,50),
+                 autoresize=False,
+                 )
+
+# await asyncio.gather(timedisp.start(),
+#                      datedisp.start(),
+#                      monthdisp.start(),
+#                      tugstats.start(),
+#                      calendar.start(),
+#                      agenda.start(),
+#                      #  weather.start(),
+#                      # weatherdetail.start(),
+#                      weatherdetail2.start(),
+#                      gitdisp.start(),
+#                      priorities.start(),
+#                      #  nowgenda.start(),
+#                      )
 
 
 if __name__ == "__main__":
@@ -546,6 +565,16 @@ if __name__ == "__main__":
 
     # asyncio.run(battery.start())
     # asyncio.run(agenda.start())
-    asyncio.run(setmeup())
+    # asyncio.run(setmeup())
+
+    timedisp.start()
+    datedisp.start()
+    monthdisp.start()
+    tugstats.start()
+    calendar.start()
+    agenda.start()
+    weatherdetail2.start()
+    gitdisp.start()
+    priorities.start()
 
     sys.exit(app.exec())
