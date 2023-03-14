@@ -27,6 +27,9 @@ import datetime
 import random
 from math import floor, ceil
 
+from types import SimpleNamespace
+import config
+
 home = os.path.expanduser('~')
 
 os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
@@ -115,45 +118,50 @@ class Worker(QObject):
 class Window(QWidget,):
 
     def __init__(self,
-                 command,
-                 top=0,
-                 left=0,
-                 right=0,
-                 bottom=0,
-                 screen=app.primaryScreen(),
-                 maxwidth=None,
-                 maxheight=None,
-                 margin=20,
-                 outputType=OutputType.HTML,
-                 period=60,
-                 align=Alignment.TOPLEFT,
-                 textAlign=QtCore.Qt.AlignLeft,
-                 textColor=QColor(200, 200, 200, 127),
-                 bgColor=QColor(255, 255, 255, 0),
-                 font="agave",
-                 fontsize=18,
-                 title="wonky",
-                 autoresize=True,
-                 linewrap=False,
-                 ):
+                 panelconfig,
+                 screen=app.primaryScreen()):
+
+        #  command,
+        #  top=0,
+        #  left=0,
+        #  right=0,
+        #  bottom=0,
+        #  screen=app.primaryScreen(),
+        #  maxwidth=None,
+        #  maxheight=None,
+        #  margin=20,
+        #  outputType=OutputType.HTML,
+        #  period=60,
+        #  align=Alignment.TOPLEFT,
+        #  textAlign=QtCore.Qt.AlignLeft,
+        #  textColor=QColor(200, 200, 200, 127),
+        #  bgColor=QColor(255, 255, 255, 0),
+        #  font="agave",
+        #  fontsize=18,
+        #  title="wonky",
+        #  autoresize=True,
+        #  linewrap=False,
+        #  ):
 
         super().__init__()
 
+        self.conf = SimpleNamespace(**panelconfig)
+
         self.isActive = False
 
-        self.setWindowTitle(title)
-        self.prefAlign = align
-        self.autoresize = autoresize
+        self.setWindowTitle(self.conf.name)
+        # self.prefAlign = align
+        # self.autoresize = autoresize
 
         # these might be preferred margins or explicit x, y coordinates
-        self.preftop = top
-        self.prefleft = left
-        self.prefright = right
-        self.prefbottom = bottom
-        self.prefmargin = margin
+        # self.preftop = top
+        # self.prefleft = left
+        # self.prefright = right
+        # self.prefbottom = bottom
+        # self.prefmargin = margin
 
-        self.maxwidth = maxwidth
-        self.maxheight = maxheight
+        # self.maxwidth = maxwidth
+        # self.maxheight = maxheight
 
         # width and height may change, so prefs do not need to be retained beyond
         # initial setting of geometry
@@ -162,14 +170,17 @@ class Window(QWidget,):
 
         self.setAlignedGeometry(self.prefScreen, 0.2, 0.2)
 
-        self.textColor = textColor
-        self.bgColor = bgColor
-        self.textAlign = textAlign
+        # self.textColor = textColor
+        # self.bgColor = bgColor
+        # self.textAlign = textAlign
 
         #  bgColor = "",
         # self.setStyleSheet("background-color: " + self.bgColor + "; border:0px;")
+        # self.setStyleSheet("background-color: rgba(" + str(self.bgColor.red()) + "," + str(self.bgColor.green()
+        #    ) + "," + str(self.bgColor.blue()) + "," + str(self.bgColor.alpha()) + "); border:0px;")
         self.setStyleSheet("background-color: rgba(" + str(self.bgColor.red()) + "," + str(self.bgColor.green()
                                                                                            ) + "," + str(self.bgColor.blue()) + "," + str(self.bgColor.alpha()) + "); border:0px;")
+
 
         self.command = command
         self.cmdOutputType = outputType
