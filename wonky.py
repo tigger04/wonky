@@ -35,9 +35,9 @@ app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling,
                  True)  # enable highdpi scaling
 app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icons
 
-screen = app.primaryScreen()
-screenW = screen.size().width()
-screenH = screen.size().height()
+# screen = app.primaryScreen()
+# screenW = screen.size().width()
+# screenH = screen.size().height()
 
 all_screens = app.screens()
 
@@ -120,6 +120,7 @@ class Window(QWidget,):
                  left=0,
                  right=0,
                  bottom=0,
+                 screen=app.primaryScreen(),
                  maxwidth=None,
                  maxheight=None,
                  margin=20,
@@ -157,7 +158,9 @@ class Window(QWidget,):
         # width and height may change, so prefs do not need to be retained beyond
         # initial setting of geometry
 
-        self.setAlignedGeometry(app.primaryScreen(), 0.2, 0.2)
+        self.prefScreen = screen
+
+        self.setAlignedGeometry(self.prefScreen, 0.2, 0.2)
 
         self.textColor = textColor
         self.bgColor = bgColor
@@ -212,7 +215,7 @@ class Window(QWidget,):
             self.font.setPointSize(fontsize)
         else:
             if fontsize < 1:
-                fontsize = screenH * fontsize
+                fontsize = self.prefScreen.size().height() * fontsize
 
             self.font.setPixelSize(int(round(fontsize)))
 
@@ -230,15 +233,15 @@ class Window(QWidget,):
         # doesn't work on macos
         print("hideEvent triggered")
 
-    def changeEvent(self, event):
-        if self.isActive:
-            print("something changed while ACTIVE")
-            if self.isVisible():
-                print("but i am still visible")
-            else:
-                print("i am no longer visible!")
-        else:
-            print("something changed while inactive")
+    # def changeEvent(self, event):
+    #     if self.isActive:
+    #         print("something changed while ACTIVE")
+    #         if self.isVisible():
+    #             print("but i am still visible")
+    #         else:
+    #             print("i am no longer visible!")
+    #     else:
+    #         print("something changed while inactive")
 
     def closeEvent(self, event):
         print("I was closed")
