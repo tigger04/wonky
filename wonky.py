@@ -77,8 +77,16 @@ class Worker(QObject):
                  ):
         super().__init__()
 
-        resolvedCmd = os.path.expanduser(command.pop(0))
-        self.command = [resolvedCmd] + command
+        resolveCmd = command.pop(0)
+
+        if resolveCmd.startswith('~/'):
+            cmd = os.path.expanduser(resolveCmd)
+        elif resolveCmd.startswith('./'):
+            cmd = sys.path[0] + resolveCmd.lstrip('.')
+        else:
+            cmd = resolveCmd
+
+        self.command = [cmd] + command
         self.period = period
         self.currentOutput = ""
 
