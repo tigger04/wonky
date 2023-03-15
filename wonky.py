@@ -174,17 +174,13 @@ class Window(QWidget,):
             self.bgColor = QColor(255, 255, 255, 0)
 
         if conf.font:
-            self.font = QFont(str(conf.font))
+            self.fontname = str(conf.font)
         else:
-            self.font = QFont("agave")
+            self.fontname = "agave"
 
         self.fontsize = float(conf.fontsize or 18.0)
 
-        if self.fontsize >= 1:
-            self.font.setPointSize(int(round(self.fontsize)))
-        else:
-            fontsize = self.prefScreen.size().height() * self.fontsize
-            self.font.setPixelSize(int(round(fontsize)))
+        self.setFont()
 
         self.name = str(conf.name)
         self.autoresize = bool(conf.autoresize or True)
@@ -193,9 +189,6 @@ class Window(QWidget,):
 
         self.setWindowTitle(self.name)
 
-        # self.setAlignedGeometry(self.prefScreen, 0.2, 0.2)
-
-        # self.setStyleSheet("background-color: " + self.bgColor + "; border:0px;")
         self.setStyleSheet("background-color: rgba(" + str(self.bgColor.red()) + "," + str(self.bgColor.green()
                                                                                            ) + "," + str(self.bgColor.blue()) + "," + str(self.bgColor.alpha()) + "); border:0px;")
 
@@ -269,6 +262,15 @@ class Window(QWidget,):
     def actionEvent(self, event):
         print("some action occurred")
         event.accept()
+
+    def setFont(self):
+        self.font = QFont(self.fontname)
+
+        if self.fontsize >= 1:
+            self.font.setPointSize(int(round(self.fontsize)))
+        else:
+            fontsize = self.prefScreen.size().height() * self.fontsize
+            self.font.setPixelSize(int(round(fontsize)))
 
     def setAlignedGeometry(self, screen, width, height):
 
@@ -364,9 +366,18 @@ class Window(QWidget,):
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
         self.worker.progress.connect(self.refresh)
+        self.prefScreen.virtualGeometryChanged.connect(self.handleScreenChange)
+        # self.prefScreen.geometryChanged.connect(self.handleScreenChange)
         # app.aboutToQuit.connect(self.worker.die)
 
         self.thread.start()
+
+    def handleScreenChange(self, rect):
+        if self.screen == self.prefScreen:
+            self.setFont()
+            self.autoResize()
+        else:
+            self.close()
 
     def refresh(self, displayText):
 
@@ -412,26 +423,38 @@ class Window(QWidget,):
         # app.processEvents()  # update gui for pyqt
 
 
-def signal_handler(signal, frame):
-    print("⛔️ got user kill signal")
+wonkys = []
+
+
+def closeall():
     for wonky in wonkys:
         wonky.close()
 
+
+def signal_handler(signal, frame):
+    print("⛔️ got user kill signal")
+    closeall()
     sys.exit(0)
 
 
-if __name__ == "__main__":
-
-    wonkys = []
-
+def loadconfigs():
+    # wonkys = []
     for screen in app.screens():
         for panel in config.panels:
             panelconfig = Configs(**panel)
             wonky = Window(panelconfig, screen)
             wonkys.append(wonky)
 
+
+def startwonkys():
     for wonky in wonkys:
         wonky.start()
+
+
+if __name__ == "__main__":
+
+    loadconfigs()
+    startwonkys()
 
     signal.signal(signal.SIGINT, signal_handler)
 
