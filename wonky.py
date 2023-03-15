@@ -48,15 +48,21 @@ app = QApplication(sys.argv)
 # screenH = screen.size().height()
 
 for scr in app.screens():
-    print('--- screen ---')
-    print(scr.name())
+    print('--- screen man: {} model: {} name: {} ---'.format(scr.manufacturer(),
+          scr.model(), scr.name()))
+    print("available geometry:")
     print(scr.availableGeometry())
+    print(scr.availableGeometry().top())
+    print(scr.availableGeometry().left())
     print(scr.availableGeometry().width())
     print(scr.availableGeometry().height())
+    print("virtual geometry:")
     print(scr.virtualGeometry())
+    print("geometry:")
     print(scr.geometry())
     print(scr.geometry().top())
     print(scr.geometry().left())
+    print("size:")
     print(scr.size())
     print(scr.size().width())
     print(scr.size().height())
@@ -99,8 +105,6 @@ class Worker(QObject):
                 self.progress.emit(self.currentOutput)
 
             sleep(self.period)
-
-        print("thread for cmd " + str(self.command) + " has finished")
 
     def die(self):
         print("attempting to kill worker for: " + self.command[0])
@@ -181,7 +185,7 @@ class Window(QWidget,):
 
         self.setWindowTitle(self.name)
 
-        self.setAlignedGeometry(self.prefScreen, 0.2, 0.2)
+        # self.setAlignedGeometry(self.prefScreen, 0.2, 0.2)
 
         # self.setStyleSheet("background-color: " + self.bgColor + "; border:0px;")
         self.setStyleSheet("background-color: rgba(" + str(self.bgColor.red()) + "," + str(self.bgColor.green()
@@ -260,8 +264,15 @@ class Window(QWidget,):
 
     def setAlignedGeometry(self, screen, width, height):
 
-        screenW = screen.size().width()
-        screenH = screen.size().height()
+        print("aligning {} to geometry {}".format(
+            self.name, screen.availableGeometry()))
+        screenL = screen.availableGeometry().left()
+        screenT = screen.availableGeometry().top()
+        screenW = screen.availableGeometry().width()
+        screenH = screen.availableGeometry().height()
+
+        print("using t:{}, b:{}, l:{}, r:{}".format(
+            self.top, self.bottom, self.left, self.right))
 
         t = screenH * self.top
         b = screenH * self.bottom
@@ -317,6 +328,12 @@ class Window(QWidget,):
                 top = screenH - height + t - b
                 left = screenW - r - width + l
 
+        top += screenT
+        left += screenL
+
+        print("aligning {} to L:{}, T:{}, W:{}, H:{}".format(
+            self.name, left, top, width, height))
+
         self.setGeometry(int(left), int(top), int(width), int(height))
 
     def autoResize(self):
@@ -328,7 +345,7 @@ class Window(QWidget,):
         width = int(self.textEdit.document().size().width() +
                     self.margin * 2)
 
-        self.setAlignedGeometry(app.primaryScreen(), width, height)
+        self.setAlignedGeometry(self.prefScreen, width, height)
 
     def start(self):
 
