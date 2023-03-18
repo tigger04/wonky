@@ -26,7 +26,7 @@ server_not_running_or_error () {
         [ $(fd -g "$srcfile" --changed-within 3s | wc -l) -gt 0 ] && return
     fi
 
-    echo "Emacs server not running"
+    echo "Emacs server not running" > /dev/stderr
     exit 0
 }
 
