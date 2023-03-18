@@ -20,12 +20,14 @@ fi
 
 server_not_running_or_error () {
 
-    if pgrep -i emacs >/dev/null 2>&1; then
-        emacsclient -e '(org-store-agenda-views)'
-    else
-        echo "Emacs server not running"
-        die
+    if pgrep -i emacs >/dev/null 2>&1 && [ -e ~/org ]; then
+        emacsclient --no-wait -e '(org-store-agenda-views)' &
+        sleep 3
+        [ $(fd -g "$srcfile" --changed-within 3s | wc -l) -gt 0 ] && return
     fi
+
+    echo "Emacs server not running"
+    exit 0
 }
 
 enforce_show_today () {
@@ -96,7 +98,7 @@ get_category () {
 }
 
 finally () {
-    rm $tugenda_categories
+    [ -e "$tugenda_categories" ] && rm $tugenda_categories
 }
 
 enforce_show_today
