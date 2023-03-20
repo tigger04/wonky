@@ -23,7 +23,7 @@ panels = [
         "period": 60,
         "align": "topcenter",
         "textAlign": "center",
-        "fontsize": 0.014,
+        # "fontsize": 0.014,
         "textColor": [255, 255, 255, 255],
         "bgColor": [0, 0, 0, 30],
         "autoresize": True,
