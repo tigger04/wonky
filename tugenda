@@ -7,138 +7,143 @@ nodate='+1'
 [ -n "$1" ] && [[ "$1" == "--nodate" ]] && nodate='+3' && shift
 
 declare -A category_moji
-category_moji[inbox]='🌟'
-category_moji[today]='⭕'
+category_moji[inbox_count]='🌟'
+category_moji[today_count]='⭕'
+category_moji[now]='🟢'
+category_moji[next]='🔵'
+category_moji[later]='🟣'
 
 # tug_generated="$(emacsclient -e "(org-store-agenda-views)")"
 srcfile=~/tug-agenda.txt
 
 if ! [ -e "$srcfile" ]; then
-    echo "$srcfile does not exist"
-    exit 0
+   echo "$srcfile does not exist"
+   exit 0
 fi
 
-server_not_running_or_error () {
+server_not_running_or_error() {
 
-    if pgrep -i emacs >/dev/null 2>&1 && [ -e ~/org ]; then
-        emacsclient --no-wait -e '(org-store-agenda-views)' &
-        sleep 3
-        [ $(fd -g "$srcfile" --changed-within 3s | wc -l) -gt 0 ] && return
-    fi
+   if pgrep -i emacs >/dev/null 2>&1 && [ -e ~/org ]; then
+      emacsclient --no-wait -e '(org-store-agenda-views)' &
+      sleep 3
+      [ $(fd -g "$srcfile" --changed-within 3s | wc -l) -gt 0 ] && return
+   fi
 
-    echo "Emacs server not running" > /dev/stderr
-    exit 0
+   echo "Emacs server not running" >/dev/stderr
+   exit 0
 }
 
-enforce_show_today () {
+enforce_show_today() {
 
-    file_date_string="$( head -n 1 "$srcfile" )"
-    # validate file is today's
-    file_date=( $file_date_string )
-    actual_date=( $(date "+%A %-d %B %Y") )
+   file_date_string="$(head -n 1 "$srcfile")"
+   # validate file is today's
+   file_date=($file_date_string)
+   actual_date=($(date "+%A %-d %B %Y"))
 
-    # declare -p file_date actual_date
-    
-    for date_element_index in {0..3}; do
-        [[ ${file_date[$date_element_index]} == ${actual_date[$date_element_index]} ]] || server_not_running_or_error
-    done
-    
+   # declare -p file_date actual_date
+
+   for date_element_index in {0..3}; do
+      [[ ${file_date[$date_element_index]} == ${actual_date[$date_element_index]} ]] || server_not_running_or_error
+   done
+
 }
 
-get_categories () {
+get_categories() {
 
-    # get full list of categories in to $categories
+   # get full list of categories in to $categories
 
-    tugenda_categories=$(mktemp)
-    echo Today > $tugenda_categories
+   tugenda_categories=$(mktemp)
+   echo Today >$tugenda_categories
 
-    grep -E '^[[:space:]]*-->' "$srcfile" \
-        | sed -E 's/^[[:space:]]*-->//g' \
-              >> $tugenda_categories
+   grep -E '^[[:space:]]*-->' "$srcfile" |
+      sed -E 's/^[[:space:]]*-->//g' \
+         >>$tugenda_categories
 
-    echo Other >> $tugenda_categories
-    echo Overdue >> $tugenda_categories
-    echo Coming\ Up >> $tugenda_categories
+   echo Other >>$tugenda_categories
+   echo Overdue >>$tugenda_categories
+   echo Coming\ Up >>$tugenda_categories
 
-    # cat $tugenda_categories
+   # cat $tugenda_categories
 }
 
-get_category () {
+get_category() {
 
-    tugenda_index=0
-    current_category=Today
+   tugenda_index=0
+   current_category=Today
 
-    cat_regex="^[[:space:]]*-->(.*)$"
-    cat_other_regex="^[[:space:]]*Other\ items$"
+   cat_regex="^[[:space:]]*-->(.*)$"
+   cat_other_regex="^[[:space:]]*Other\ items$"
 
-    requested_category="{1,,}"
-    
-    while read -r tugenda_line; do
-        if [ $((tugenda_index++)) -eq 0 ]; then
-            continue
-        elif [[ $tugenda_line =~ $cat_regex ]]; then
-            current_category="${BASH_REMATCH[1]}"
-        elif [[ $tugenda_line =~ $cat_other_regex ]]; then
-            current_category=Other
-        elif [[ $tugenda_line =~ Sched\. ]]; then
-            current_category=Overdue
-        elif [[ $tugenda_line =~ In[[:space:]]*[0-9]+[[:space:]]*d\.: ]]; then
-            current_category=Coming\ Up
-        fi
+   requested_category="{1,,}"
 
-        if [[ "${1,,}" == "${current_category,,}" ]] \
-               && ! [[ $tugenda_line =~ $cat_regex ]] \
-               && ! [[ $tugenda_line =~ $cat_other_regex ]] \
-               && ! [[ "$tugenda_line" == "Today" ]] \
-               && [ -n "$tugenda_line" ]; then
-            
-            echo "$tugenda_line"
-        fi
-    done < "$srcfile"
+   while read -r tugenda_line; do
+      if [ $((tugenda_index++)) -eq 0 ]; then
+         continue
+      elif [[ $tugenda_line =~ $cat_regex ]]; then
+         current_category="${BASH_REMATCH[1]}"
+      elif [[ $tugenda_line =~ $cat_other_regex ]]; then
+         current_category=Other
+      elif [[ $tugenda_line =~ Sched\. ]]; then
+         current_category=Overdue
+      elif [[ $tugenda_line =~ In[[:space:]]*[0-9]+[[:space:]]*d\.: ]]; then
+         current_category=Coming\ Up
+      fi
+
+      if [[ "${1,,}" == "${current_category,,}" ]] &&
+         ! [[ $tugenda_line =~ $cat_regex ]] &&
+         ! [[ $tugenda_line =~ $cat_other_regex ]] &&
+         ! [[ "$tugenda_line" == "Today" ]] &&
+         [ -n "$tugenda_line" ]; then
+
+         cat_bullet="${category_moji[$current_category]}"
+         echo "${tugenda_line//TODO/$cat_bullet}"
+         declare -p cat_bullet tugenda_line
+      fi
+   done <"$srcfile"
 }
 
-finally () {
-    [ -e "$tugenda_categories" ] && rm $tugenda_categories
+finally() {
+   [ -e "$tugenda_categories" ] && rm $tugenda_categories
 }
 
 enforce_show_today
 get_categories
 
-if [ $# -eq 0 ] ; then
-    cat "$srcfile"
-    #     while read -r get_cat; do
-    #         echo "$get_cat:"
-    #         get_category "$get_cat"
-    #     done < $tugenda_categories
+if [ $# -eq 0 ]; then
+   cat "$srcfile"
+   #     while read -r get_cat; do
+   #         echo "$get_cat:"
+   #         get_category "$get_cat"
+   #     done < $tugenda_categories
 else
-    if [ $# -gt 1 ] ; then
-        multiple_categories_selected=true
-    else
-        unset multiple_categories_selected
-    fi
-    
-    while [ $# -gt 0 ] ; do
-        if [[ $1 =~ ^(.*)-count$ ]]; then
-            count_category_name="${BASH_REMATCH[1]}"
-            count_category="$(get_category "$count_category_name" | wc -l)"
-            count_category=$((count_category + 0))
-            if [ $count_category -gt 0 ]; then
-                # declare -p category_moji count_category_name count_category
-                printf '%s%s' "${category_moji[$count_category_name]}" "$count_category"
-            fi
+   if [ $# -gt 1 ]; then
+      multiple_categories_selected=true
+   else
+      unset multiple_categories_selected
+   fi
 
-            # add a space between if there are multiple count requests (pedantic me)
-            [ -n "$2" ] && [[ $2 =~ -count$ ]] && printf ' '
+   while [ $# -gt 0 ]; do
+      if [[ $1 =~ ^(.*)-count$ ]]; then
+         count_category_name="${BASH_REMATCH[1]}"
+         count_category="$(get_category "$count_category_name" | wc -l)"
+         count_category=$((count_category + 0))
+         if [ $count_category -gt 0 ]; then
+            # declare -p category_moji count_category_name count_category
+            printf '%s%s' "${category_moji[${count_category_name}_count]}" "$count_category"
+         fi
 
-        else
-            if [ $(get_category "$1" | wc -l) -gt 0 ] ; then
-                [ -n "$multiple_categories_selected" ] && echo "-->$1"
-                get_category "$1"
-                [ -n "$multiple_categories_selected" ] && echo
-            fi
-        fi
-        
-        shift
+         # add a space between if there are multiple count requests (pedantic me)
+         [ -n "$2" ] && [[ $2 =~ -count$ ]] && printf ' '
 
-    done
+      else
+         if [ $(get_category "$1" | wc -l) -gt 0 ]; then
+            [ -n "$multiple_categories_selected" ] && echo "-->$1"
+            get_category "$1"
+            [ -n "$multiple_categories_selected" ] && echo
+         fi
+      fi
+
+      shift
+
+   done
 fi | sed -E -f "$0.sed" | tail -n "${nodate}"

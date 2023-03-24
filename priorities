@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 priorities_file=~/org/priorities.txt
-now_doing="$(tugenda now)"
+now_doing="$(tugenda now | head -n 1)"
 
 oneline=false
 [ $# -gt 0 ] && [[ "$1" == "-1" ]] && oneline=true && shift
@@ -19,5 +19,5 @@ doit() {
 if $oneline; then
    doit "$@" | tr '\n' ' '
 else
-   doit "$@" 
+   doit "$@"
 fi
