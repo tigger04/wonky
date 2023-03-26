@@ -139,16 +139,18 @@ class Window(QWidget,):
         if conf.maxheight:
             self.maxheight = float(conf.maxheight)
             if self.maxheight < 1.0:
-                self.maxheight= round(float(self.prefScreen.size().height()) * self.maxheight)
+                self.maxheight = round(
+                    float(self.prefScreen.size().height()) * self.maxheight)
         else:
-            self.maxheight= None
+            self.maxheight = None
 
         if conf.maxwidth:
             self.maxwidth = float(conf.maxwidth)
             if self.maxwidth < 1.0:
-                self.maxwidth= round(float(self.prefScreen.size().width()) * self.maxwidth)
+                self.maxwidth = round(
+                    float(self.prefScreen.size().width()) * self.maxwidth)
         else:
-            self.maxwidth= None
+            self.maxwidth = None
 
         self.margin = int(conf.margin or 20)
         self.outputType = str(conf.outputType or "html")
@@ -299,7 +301,8 @@ class Window(QWidget,):
             width = self.maxwidth
 
         if self.maxheight and height > self.maxheight:
-            print("height {} exceeds maxheight of {}".format(height, self.maxheight))
+            print("height {} exceeds maxheight of {}".format(
+                height, self.maxheight))
             height = self.maxheight
 
         match self.align.lower():
@@ -349,12 +352,13 @@ class Window(QWidget,):
 
     def autoResize(self):
         self.textEdit.document().setTextWidth(self.textEdit.viewport().width())
-        margins = self.textEdit.contentsMargins()
+        margins = self.contentsMargins()
         height = int(self.textEdit.document().size().height() +
                      self.margin * 2)
-        #  margins.top() + margins.bottom())
+                    #  margins.top() + margins.bottom())
         width = int(self.textEdit.document().size().width() +
                     self.margin * 2)
+                    #  margins.left() + margins.right())
 
         self.setAlignedGeometry(self.prefScreen, width, height)
 

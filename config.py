@@ -3,7 +3,7 @@ panels = [
         "name": "tugenda",
         "top": 0.05,
         "left": 0.03,
-        "margin": 10,
+        # "margin": 10,
         "maxheight": 0.5,
         "maxwidth": 0.15,
         "name": "agenda",
