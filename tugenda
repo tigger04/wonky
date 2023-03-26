@@ -80,7 +80,7 @@ get_category() {
       if [ $((tugenda_index++)) -eq 0 ]; then
          continue
       elif [[ $tugenda_line =~ $cat_regex ]]; then
-         current_category="${BASH_REMATCH[1]}"
+         current_category="${BASH_REMATCH[1],,}"
       elif [[ $tugenda_line =~ $cat_other_regex ]]; then
          current_category=Other
       elif [[ $tugenda_line =~ Sched\. ]]; then
@@ -97,7 +97,7 @@ get_category() {
 
          cat_bullet="${category_moji[$current_category]}"
          echo "${tugenda_line//TODO/$cat_bullet}"
-         declare -p cat_bullet tugenda_line
+         # declare -p cat_bullet tugenda_line current_category
       fi
    done <"$srcfile"
 }
