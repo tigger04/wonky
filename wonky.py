@@ -135,15 +135,20 @@ class Window(QWidget,):
         self.left = float(conf.left or 0)
         self.right = float(conf.right or 0)
         self.bottom = float(conf.bottom or 0)
-        if conf.maxwidth:
-            self.maxwidth = float(conf.maxwidth)
-        else:
-            self.maxwidth = None
 
         if conf.maxheight:
             self.maxheight = float(conf.maxheight)
+            if self.maxheight < 1.0:
+                self.maxheight= round(float(self.prefScreen.size().height()) * self.maxheight)
         else:
-            self.maxheight = None
+            self.maxheight= None
+
+        if conf.maxwidth:
+            self.maxwidth = float(conf.maxwidth)
+            if self.maxwidth < 1.0:
+                self.maxwidth= round(float(self.prefScreen.size().width()) * self.maxwidth)
+        else:
+            self.maxwidth= None
 
         self.margin = int(conf.margin or 20)
         self.outputType = str(conf.outputType or "html")
@@ -290,16 +295,12 @@ class Window(QWidget,):
         r = screenW * self.right
 
         if self.maxwidth and width > self.maxwidth:
+            print("width {} exceeds maxwidth of {}".format(width, self.maxwidth))
             width = self.maxwidth
 
         if self.maxheight and height > self.maxheight:
+            print("height {} exceeds maxheight of {}".format(height, self.maxheight))
             height = self.maxheight
-
-        if float(width) <= 1.0:
-            width = ceil(float(screenW) * float(width))
-
-        if float(height) <= 1.0:
-            height = ceil(float(screenH) * float(height))
 
         match self.align.lower():
             case "topleft":
