@@ -19,7 +19,7 @@ panels = [
         "name": "backup-status",
         "top": 0.2,
         "maxwidth": 0.3,
-        "command": ["cat", "~/wonky/backup-status", "tr -d '\n'"],
+        "command": ["bash", "-c", "cat ~/wonky/backup.status | tr -d '\n'"],
         "outputType": "plaintext",
         "period": 60,
         "align": "topcenter",
