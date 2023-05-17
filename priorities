@@ -10,9 +10,8 @@ doit() {
    if [ -n "$now_doing" ]; then
       echo "${now_doing^^}" | head -n ${1:-3}
    else
-      # show random n random priorities from $priorities_file (default 1)
-      shuf "$priorities_file" | head -n ${1:-3}
-   # cat "$priorities_file" | head -n ${1:-3}
+      cat "$priorities_file"
+      # cat "$priorities_file" | head -n ${1:-3}
    fi
 }
 
