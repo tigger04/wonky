@@ -10,7 +10,7 @@ show_pc=false
 [ -n "$1" ] && [[ "${1}" == "-pc" ]] && show_pc=true && shift
 
 declare -A battery_status_icon
-battery_status_icon[Discharging]='🔽'
+battery_status_icon[Discharging]='🪫'
 battery_status_icon[Charging]='🔌'
 battery_status_icon[Not charging]='⚠️'
 battery_status_icon[Full]='🔋'
