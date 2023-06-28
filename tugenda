@@ -72,7 +72,8 @@ get_category() {
    current_category=Today
 
    cat_regex="^[[:space:]]*-->(.*)$"
-   cat_other_regex="^[[:space:]]*Other\ items$"
+   # cat_other_regex="^[[:space:]]*Other\ items$"
+   cat_overdue_regex="^[[:space:]]*(Sched\. [0-9]+x|In[[:space:]]+[0-9]+[[:space:]]*d\.):"
 
    requested_category="{1,,}"
 
@@ -81,9 +82,9 @@ get_category() {
          continue
       elif [[ $tugenda_line =~ $cat_regex ]]; then
          current_category="${BASH_REMATCH[1],,}"
-      elif [[ $tugenda_line =~ $cat_other_regex ]]; then
-         current_category=Other
-      elif [[ $tugenda_line =~ Sched\. ]]; then
+      # elif [[ $tugenda_line =~ $cat_other_regex ]]; then
+      #    current_category=Other
+      elif [[ $tugenda_line =~ $cat_overdue_regex ]]; then
          current_category=Overdue
       elif [[ $tugenda_line =~ In[[:space:]]*[0-9]+[[:space:]]*d\.: ]]; then
          current_category=Coming\ Up
