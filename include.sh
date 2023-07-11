@@ -1,5 +1,43 @@
 [ -n "$_os" ] || _os=$(uname)
 
+# check if we have a good bash version - still loads partial colour codes if not
+
+if [ ${#BASH_VERSINFO[@]} -gt 0 ] && [ ${BASH_VERSINFO[0]} -gt 5 ]; then
+   export _bash_version_ok=true
+else
+   export _bash_version_ok=false
+fi
+
+. "$(dirname -- "${BASH_SOURCE[0]}")/colours.sh"
+
+die() {
+
+   local die_message="💀 $(basename "$0") died:"
+   if [ $# -eq 0 ]; then
+      read die_info < <(declare -p FUNCNAME)
+      die_info="${die_info#declare -??}"
+   else
+      die_info="$*"
+   fi
+
+   echo -e "${bred}${die_message} ${die_info}${ansi_off}" >&2
+
+   ~/bin/notify "$die_message" "$die_info"
+
+   if [ -n "$debug" ]; then
+      show_fail_source ${BASH_LINENO[0]} "${BASH_SOURCE[1]}"
+      echo -ne "${ansi[off]}"
+   fi >&2
+
+   if [ $SHLVL -le 1 ]; then
+      errortext "this shell will exit"
+      confirm_cmd_execute exit 101
+   else
+      exit 100
+   fi
+
+}
+
 blockchart() {
 
    set -e

@@ -127,6 +127,7 @@ class Window(QWidget,):
 
         super().__init__()
 
+        self.name = str(conf.name)
         self.prefScreen = screen
 
         self.isActive = False
@@ -136,11 +137,28 @@ class Window(QWidget,):
         self.right = float(conf.right or 0)
         self.bottom = float(conf.bottom or 0)
 
+        if conf.minheight:
+            self.minheight = float(conf.minheight)
+            if self.minheight < 1.0:
+                self.minheight = round(
+                    float(self.prefScreen.size().height()) * self.minheight)
+        else:
+            self.minheight = 40
+
+        if conf.minwidth:
+            self.minwidth = float(conf.minwidth)
+            if self.minwidth < 1.0:
+                self.minwidth = round(
+                    float(self.prefScreen.size().width()) * self.minwidth)
+        else:
+            self.minwidth = 40
+
         if conf.maxheight:
             self.maxheight = float(conf.maxheight)
             if self.maxheight < 1.0:
                 self.maxheight = round(
                     float(self.prefScreen.size().height()) * self.maxheight)
+            self.setMaximumHeight(self.maxheight)
         else:
             self.maxheight = None
 
@@ -149,6 +167,7 @@ class Window(QWidget,):
             if self.maxwidth < 1.0:
                 self.maxwidth = round(
                     float(self.prefScreen.size().width()) * self.maxwidth)
+            self.setMaximumWidth(self.maxwidth)
         else:
             self.maxwidth = None
 
@@ -189,7 +208,6 @@ class Window(QWidget,):
 
         self.setFont()
 
-        self.name = str(conf.name)
         self.autoresize = bool(conf.autoresize or True)
         self.linewrap = bool(conf.linewrap or False)
         self.command = list(conf.command or ["uname"])
@@ -217,7 +235,12 @@ class Window(QWidget,):
         self.setWindowFlags(flags)
         vboxlayout = QGridLayout()
 
+        # self.setAlignedGeometry ( screen, self.minwidth, self.minheight)
+
         self.textEdit = QTextEdit()
+        # self.textEdit.width = self.geometry().width
+        # self.textEdit.height = self.geometry().height
+
         self.textEdit.setStyleSheet(
             "background-color: rgba(255,0,0,0%); color: rgba(255,255,255,100%); border:0")
 
@@ -296,11 +319,11 @@ class Window(QWidget,):
         l = screenW * self.left
         r = screenW * self.right
 
-        if self.maxwidth and width > self.maxwidth:
+        if self.maxwidth and (width > self.maxwidth):
             print("width {} exceeds maxwidth of {}".format(width, self.maxwidth))
             width = self.maxwidth
 
-        if self.maxheight and height > self.maxheight:
+        if self.maxheight and ( height > self.maxheight ):
             print("height {} exceeds maxheight of {}".format(
                 height, self.maxheight))
             height = self.maxheight
@@ -351,14 +374,43 @@ class Window(QWidget,):
         self.setGeometry(int(left), int(top), int(width), int(height))
 
     def autoResize(self):
-        self.textEdit.document().setTextWidth(self.textEdit.viewport().width())
+
+    #class Editor(QTextEdit):
+    # def __init__(self):
+    #     super().__init__()
+    #     self.setReadOnly(True)
+    #     self.setFont(font)
+    #     self.textChanged.connect(self.autoResize)
+
+    # def autoResize(self):
+    #     self.document().setTextWidth(self.viewport().width())
+    #     margins = self.contentsMargins()
+    #     height = int(self.document().size().height() + margins.top() + margins.bottom())
+    #     self.setFixedHeight(height)
+
+    # def resizeEvent(self, event):
+    #     self.autoResize()
+
+        # self.textEdit.document().setTextWidth(self.textEdit.viewport().width())
+        self.textEdit.document().adjustSize()
+
         margins = self.contentsMargins()
+
         height = int(self.textEdit.document().size().height() +
-                     self.margin * 2)
-                    #  margins.top() + margins.bottom())
+                    #  self.margin * 2)
+                     margins.top() + margins.bottom())
         width = int(self.textEdit.document().size().width() +
-                    self.margin * 2)
-                    #  margins.left() + margins.right())
+                    # self.margin * 2)
+                     margins.left() + margins.right())
+
+        if self.maxheight and height > self.maxheight:
+            height = self.maxheight
+        if self.maxwidth and width > self.maxwidth:
+            width = self.maxwidth
+
+        self.textEdit.setFixedHeight(height)
+        self.textEdit.setFixedWidth(width)
+        # self.textEdit.autoResize()
 
         self.setAlignedGeometry(self.prefScreen, width, height)
 
