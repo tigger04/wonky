@@ -22,7 +22,7 @@ die() {
 
    echo -e "${bred}${die_message} ${die_info}${ansi_off}" >&2
 
-   ~/bin/notify "$die_message" "$die_info"
+   ~/bin/notify "$die_message" "$die_info" >/dev/null 2>&1 || :
 
    if [ -n "$debug" ]; then
       show_fail_source ${BASH_LINENO[0]} "${BASH_SOURCE[1]}"
@@ -36,6 +36,37 @@ die() {
       exit 100
    fi
 
+}
+
+show_fail_source() {
+
+   show_fail_source_color="$yellow"
+   printf '%s' "$show_fail_source_color$underline"
+   nice_path "$2"
+   printf '%s\n' "$not_underline"
+
+   awk 'NR>L-4 && NR<L+4 { printf "%-5d%s\n",NR,$0 }' L=$1 "$2" |
+      while read -r show_fail_source_line; do
+         highlight_regex="^($1) "
+
+         if [[ $show_fail_source_line =~ $highlight_regex ]]; then
+            printf '%s%s%s\n' \
+               "$invert" \
+               "$show_fail_source_line" \
+               "$ansi_off"
+         else
+            printf '%s%s\n' "$yellow" "$show_fail_source_line"
+         fi
+      done
+
+}
+
+nice_path() {
+   if [[ "$1" == "$HOME/"* ]]; then
+      printf "%s" "~${1#"$HOME"}"
+   else
+      printf "%s" "$1"
+   fi
 }
 
 blockchart() {
@@ -106,4 +137,6 @@ cpu_usage() {
    top -b -n2 -p 1 | \grep "Cpu(s)" | tail -1 | awk -F'id,' -v prefix="$prefix" '{ split($1, vs, ","); v=vs[length(vs)]; sub("%", "", v); printf "%s%.1f%%\n",prefix, 100 - v }'
 }
 
-[ ${BASH_VERSINFO[0]} -gt 5 ] || die "requires bash v5+"
+# [ ${BASH_VERSINFO[0]} -gt 5 ] || die "requires bash v5+"
+# maybe we can do something for the slow learners .. maybe (experimental) so
+# commenting this out for now

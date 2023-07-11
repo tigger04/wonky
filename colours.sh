@@ -96,7 +96,7 @@ export nocolor="$ansi_off"
 export nocolour="$ansi_off"
 
 # point of no return! only reasonable version of bash get to have nice things
-if [ -z "$_bash_version_ok" ]; then return; fi
+if [ -z "$_bash_version_ok" ]; then return 0; fi
 # we let old shells politely out the door
 
 declare -A blockmoji

@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
 
-priorities_file=~/org/priorities.txt
-now_doing="$(tugenda now)"
-# now_doing="$(tugenda now | tr '\n' '§' | sed -e 's/§/ \/ /g')"
+. "$(dirname -- "${BASH_SOURCE[0]}")/include.sh"
 
-if [ $# -eq 0 ]; then
+now_doing="$(tugenda now)" || :      # what have I marked as OMGDOITNOW in agenda?
+priorities_file=~/org/priorities.txt # this will be the fall guy
+me=$(basename "$0")                  # who am i this lowly script? I might rename me
+
+if [ $# -eq 0 ]; then # uh oh let's tell the newbie what to do
    cat - <<EOM >&2
+*** ${me^^} HELP ***
 
 USAGE
-   $(basename "$0") [-1] MAXLINES
+   $me [-1] MAXLINES
 
 WHERE
    -1       :   output on one line only [optional]
@@ -18,9 +21,20 @@ EOM
    exit 255
 fi
 
+# did we get a one-liner request
 oneline=false
 [ $# -gt 0 ] && [[ "$1" == "-1" ]] && oneline=true && shift
-[[ $1 =~ ^[0-9]+$ ]] || die must specify max number of lines to output
+
+# did we get our MAXLINES argument?
+case "$1" in
+'' | *[!0-9]*)
+   # uh-oh, caller didn't get the idea
+   die "argument must be numeric!"
+   ;;
+*)
+   # good, you may live to see some results
+   ;;
+esac
 
 doit() {
    if [ -n "$now_doing" ]; then
@@ -35,7 +49,7 @@ doit() {
 }
 
 if $oneline; then
-   doit "$@" | tr '\n' ' '
+   doit "$@" | head -n $1 | tr '\n' ' '
 else
-   doit "$@"
+   doit "$@" | head -n $1
 fi
