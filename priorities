@@ -27,12 +27,12 @@ oneline=false
 
 # did we get our MAXLINES argument?
 case "$1" in
-'' | *[!0-9]*)
-   # uh-oh, caller didn't get the idea
-   die "argument must be numeric!"
+[0-9]*)
+   # good, you may live to see some results
    ;;
 *)
-   # good, you may live to see some results
+   # uh-oh, caller didn't get the idea
+   die "argument must be numeric! got $*"
    ;;
 esac
 
