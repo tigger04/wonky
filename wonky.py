@@ -15,6 +15,8 @@ from PyQt5.QtCore import (
     QMargins,
 )
 
+import pywinctl as pwc
+
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout, QVBoxLayout, QSizeGrip, QTextEdit
 import sys
 import signal
