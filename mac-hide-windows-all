@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+#shellcheck source=helper.sh
+# source ~/bin/helper.sh
+
+doit() {
+	osascript <<EOM
+try
+	
+	tell application "Finder"
+		if the (count of windows) is not 0 then
+			---set visible of every window to false
+			close every window
+		end if
+	end tell
+	
+	set oldfp to ""
+	
+	tell application "System Events"
+		
+		set visible of every process to false
+		
+		---	set fp to first process whose frontmost is true
+		
+		---repeat until (path to frontmost application as text) contains "Finder"
+		(*
+	repeat until (name of first process whose frontmost is true as string) is equal to "Finder"
+		
+		set oldfp to (name of fp as string)
+		set fp to first process whose frontmost is true
+		set visible of fp to false
+		delay 0.25
+		if (name of process fp as string) is equal to oldfp then
+			keystroke "h" using { command down }
+			delay 0.25
+		end if
+		
+		---display alert (name of fp as string)
+	end repeat
+	*)
+		
+		# open location "btt://execute_assigned_actions_for_trigger/?uuid=7DB8C98E-7BE0-4869-9C01-BBC3A6FA488A"
+	end tell
+on error the error_message number the error_number
+	-- don't display error message if the user canceled a dialog within the [try] and [on error] lines above
+	if the error_number is not -128 then
+		set the error_text to "Error: " & the error_number & ". " & the error_message
+		display dialog the error_text buttons {"Cancel"} default button 1
+	else
+		error number -128
+	end if
+end try
+
+EOM
+}
+
+doit
