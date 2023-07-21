@@ -71,6 +71,7 @@ for scr in app.screens():
     print('--------------')
 
 
+
 class Worker(QObject):
 
     def __init__(self,
@@ -511,6 +512,12 @@ def startwonkys():
 
 
 if __name__ == "__main__":
+
+    # bit of a hack, in macos first hide all windows to make sure wonky stays
+    # behind all other windows
+    # TODO: there is a proper fix i think using pywinctl
+    if sys.platform.startswith("darwin"):
+       subprocess.run(['mac-hide-windows-all']) 
 
     loadconfigs()
     startwonkys()
