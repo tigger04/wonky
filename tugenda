@@ -14,7 +14,7 @@ category_moji[next]='🔵'
 category_moji[later]='🟣'
 
 # tug_generated="$(emacsclient -e "(org-store-agenda-views)")"
-srcfile=~/tug-agenda.txt
+srcfile=~/org/agenda/tug-agenda.txt
 
 if ! [ -e "$srcfile" ]; then
    echo "$srcfile does not exist"
