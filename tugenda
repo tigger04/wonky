@@ -3,8 +3,58 @@
 #shellcheck source=helper.sh
 source ~/bin/helper.sh
 
+if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
+   cat <<EOM >/dev/stderr
+--- "$command_base" ---
+USAGE:
+   $command_base [OPTIONS] [CATEGORIES]
+
+OPTIONS:
+   -h/--help      Display this help message
+   -n/--nodate    Do not display date header
+                  (only applies when showing all categories)
+   -t/--headers   Display category titles
+                  Defaults to false
+
+CATEGORIES
+
+This can be blank (show all categories), or a space delimited list of categories
+to be shown. For categories containing spaces, enclose them in quotes.
+
+Additionally, if a category name is suffixed with -count e.g. 'inbox-count', the
+count of the number of items in that category will be shown instead.
+EOM
+   exit 1
+fi
+
+# defaults / initial values
 nodate='+1'
-[ -n "$1" ] && [[ "$1" == "--nodate" ]] && nodate='+3' && shift
+show_cat_titles=false
+show_categories=()
+show_all_categories=true
+
+# get options
+while [ $# -gt 0 ]; do
+   case "$1" in
+   -t | --headers)
+      show_cat_titles=true
+      ;;
+   -n | --nodate)
+      nodate='+3'
+      ;;
+   *)
+      show_categories+=("$1")
+      show_all_categories=false
+      ;;
+   esac
+
+   shift
+done
+
+debug_var nodate show_cat_titles show_categories show_all_categories
+
+# nodate='+1'
+# [ -n "$1" ] && [[ "$1" == "--nodate" ]] && nodate='+3' && shift
 
 declare -A category_moji
 category_moji[inbox_count]='🌟'
@@ -110,41 +160,44 @@ finally() {
 enforce_show_today
 get_categories
 
-if [ $# -eq 0 ]; then
+# if [ $# -eq 0 ]; then
+if $show_all_categories; then
    cat "$srcfile"
    #     while read -r get_cat; do
    #         echo "$get_cat:"
    #         get_category "$get_cat"
    #     done < $tugenda_categories
 else
-   if [ $# -gt 1 ]; then
-      multiple_categories_selected=true
-   else
-      unset multiple_categories_selected
-   fi
+   # if [ $# -gt 1 ]; then
+   #    show_cat_titles=true
+   # else
+   #    unset show_cat_titles
+   # fi
 
-   while [ $# -gt 0 ]; do
-      if [[ $1 =~ ^(.*)-count$ ]]; then
+   for show_category in "${show_categories[@]}"; do
+      # while [ $# -gt 0 ]; do
+      if [[ $show_category =~ ^(.*)-count$ ]]; then
          count_category_name="${BASH_REMATCH[1]}"
          count_category="$(get_category "$count_category_name" | wc -l)"
          count_category=$((count_category + 0))
          if [ $count_category -gt 0 ]; then
             # declare -p category_moji count_category_name count_category
-            printf '%s%s' "${category_moji[${count_category_name}_count]}" "$count_category"
+            printf '%s%s' "${category_moji[${count_category_name}_count]} " "$count_category"
          fi
 
          # add a space between if there are multiple count requests (pedantic me)
-         [ -n "$2" ] && [[ $2 =~ -count$ ]] && printf ' '
+         # [ -n "$2" ] && [[ $2 =~ -count$ ]] && printf ' '
+         # TODO fix ^^ or determine if it's still needed
 
       else
-         if [ $(get_category "$1" | wc -l) -gt 0 ]; then
-            [ -n "$multiple_categories_selected" ] && echo "-->$1"
-            get_category "$1"
-            [ -n "$multiple_categories_selected" ] && echo
+         if [ $(get_category "$show_category" | wc -l) -gt 0 ]; then
+            $show_cat_titles && echo "-->$show_category"
+            get_category "$show_category"
+            $show_cat_titles && echo
          fi
       fi
 
-      shift
+      # shift
 
    done
 fi | sed -E -f "$0.sed" | tail -n "${nodate}"
