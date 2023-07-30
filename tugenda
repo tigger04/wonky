@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
+#shellcheck disable=SC2154,SC1091
 
 #shellcheck source=helper.sh
 source ~/bin/helper.sh
 
 if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
    cat <<EOM >/dev/stderr
---- "$command_base" ---
+--- $command_base ---
 USAGE:
    $command_base [OPTIONS] [CATEGORIES]
 
@@ -103,15 +104,16 @@ get_categories() {
    # get full list of categories in to $categories
 
    tugenda_categories=$(mktemp)
-   echo Today >$tugenda_categories
+   {
+      echo Today
 
-   grep -E '^[[:space:]]*-->' "$srcfile" |
-      sed -E 's/^[[:space:]]*-->//g' \
-         >>$tugenda_categories
+      grep -E '^[[:space:]]*-->' "$srcfile" |
+         sed -E 's/^[[:space:]]*-->//g'
 
-   echo Other >>$tugenda_categories
-   echo Overdue >>$tugenda_categories
-   echo Coming\ Up >>$tugenda_categories
+      echo Other
+      echo Overdue
+      echo Coming\ Up
+   } >$tugenda_categories
 
    # cat $tugenda_categories
 }
@@ -125,7 +127,7 @@ get_category() {
    # cat_other_regex="^[[:space:]]*Other\ items$"
    cat_overdue_regex="^[[:space:]]*(Sched\. [0-9]+x|In[[:space:]]+[0-9]+[[:space:]]*d\.):"
 
-   requested_category="{1,,}"
+   requested_category="$1"
 
    while read -r tugenda_line; do
       if [ $((tugenda_index++)) -eq 0 ]; then
@@ -140,7 +142,7 @@ get_category() {
          current_category=Coming\ Up
       fi
 
-      if [[ "${1,,}" == "${current_category,,}" ]] &&
+      if [[ "${requested_category,,}" == "${current_category,,}" ]] &&
          ! [[ $tugenda_line =~ $cat_regex ]] &&
          ! [[ $tugenda_line =~ $cat_other_regex ]] &&
          ! [[ "$tugenda_line" == "Today" ]] &&
@@ -160,20 +162,9 @@ finally() {
 enforce_show_today
 get_categories
 
-# if [ $# -eq 0 ]; then
 if $show_all_categories; then
    cat "$srcfile"
-   #     while read -r get_cat; do
-   #         echo "$get_cat:"
-   #         get_category "$get_cat"
-   #     done < $tugenda_categories
 else
-   # if [ $# -gt 1 ]; then
-   #    show_cat_titles=true
-   # else
-   #    unset show_cat_titles
-   # fi
-
    for show_category in "${show_categories[@]}"; do
       # while [ $# -gt 0 ]; do
       if [[ $show_category =~ ^(.*)-count$ ]]; then
@@ -181,14 +172,8 @@ else
          count_category="$(get_category "$count_category_name" | wc -l)"
          count_category=$((count_category + 0))
          if [ $count_category -gt 0 ]; then
-            # declare -p category_moji count_category_name count_category
             printf '%s%s' "${category_moji[${count_category_name}_count]} " "$count_category"
          fi
-
-         # add a space between if there are multiple count requests (pedantic me)
-         # [ -n "$2" ] && [[ $2 =~ -count$ ]] && printf ' '
-         # TODO fix ^^ or determine if it's still needed
-
       else
          if [ $(get_category "$show_category" | wc -l) -gt 0 ]; then
             $show_cat_titles && echo "-->$show_category"
@@ -196,8 +181,6 @@ else
             $show_cat_titles && echo
          fi
       fi
-
-      # shift
 
    done
 fi | sed -E -f "$0.sed" | tail -n "${nodate}"
