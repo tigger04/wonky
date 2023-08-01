@@ -24,11 +24,6 @@ die() {
 
    ~/bin/notify "$die_message" "$die_info" >/dev/null 2>&1 || :
 
-   if [ -n "$debug" ]; then
-      show_fail_source ${BASH_LINENO[0]} "${BASH_SOURCE[1]}"
-      echo -ne "${ansi[off]}"
-   fi >&2
-
    if [ $SHLVL -le 1 ]; then
       errortext "this shell will exit"
       confirm_cmd_execute exit 101
@@ -113,8 +108,6 @@ blockchart() {
 
    declare -i bc_index=0
    bc_color="${bc_scheme[0]}"
-
-   [ -n "$debug" ] && declare -p bc_max bc_maxblocks bc_block_count bc_metric bc_metric_precision bc_metric_unadulterated bc_offset bc_limits
 
    while [ $bc_index -lt ${#bc_limits[@]} ]; do
       if [ $bc_metric_unadulterated -ge ${bc_limits[$bc_index]} ]; then

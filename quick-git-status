@@ -6,8 +6,8 @@ if [ $# -gt 0 ] && [[ "$1" == "--notify" ]]; then
     shift
     export disable_colors=true
     qgs_output=$(mktemp).log
-    "$0" "$@" > $qgs_output 2>&1
-    ~/bin/notify < $qgs_output
+    "$0" "$@" >$qgs_output 2>&1
+    ~/bin/notify <$qgs_output
     sleep 3
     rm $qgs_output
     exit 0
@@ -43,8 +43,6 @@ if [[ "$1" == "--env" ]]; then
     shift
     set -- "${repos[@]}"
 fi
-
-[ -n "$debug" ] && declare -p use_one_line
 
 if [ $# -eq 0 ]; then
     set -- "$PWD"
@@ -85,9 +83,6 @@ for dir in "$@"; do
             fi
         fi
     fi
-
-    [ -n "$debug" ] && declare -p use_one_line
-    [ -n "$debug" ] && declare -p use_one_line
 
     # if [[ "$dir" == "$HOME"* ]]; then
     #     nice_dir='~'
