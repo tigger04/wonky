@@ -105,14 +105,14 @@ get_categories() {
 
    tugenda_categories=$(mktemp)
    {
-      echo Today
+      # echo Today
 
       grep -E '^[[:space:]]*-->' "$srcfile" |
          sed -E 's/^[[:space:]]*-->//g'
 
-      echo Other
-      echo Overdue
-      echo Coming\ Up
+      # echo Other
+      # echo Overdue
+      # echo Coming\ Up
    } >$tugenda_categories
 
    # cat $tugenda_categories
@@ -144,7 +144,7 @@ get_category() {
 
       if [[ "${requested_category,,}" == "${current_category,,}" ]] &&
          ! [[ $tugenda_line =~ $cat_regex ]] &&
-         ! [[ $tugenda_line =~ $cat_other_regex ]] &&
+         # ! [[ $tugenda_line =~ $cat_other_regex ]] &&
          ! [[ "$tugenda_line" == "Today" ]] &&
          [ -n "$tugenda_line" ]; then
 
@@ -175,7 +175,7 @@ else
             printf '%s%s' "${category_moji[${count_category_name}_count]} " "$count_category"
          fi
       else
-         if [ $(get_category "$show_category" | wc -l) -gt 0 ]; then
+         if [ "$(get_category "$show_category" | wc -l)" -gt 0 ]; then
             $show_cat_titles && echo "-->$show_category"
             get_category "$show_category"
             $show_cat_titles && echo
