@@ -6,7 +6,7 @@ s/^IDEA/i/g
 s/^APPT/📅/g
 s/\[#[A-E]\] //g
 s/^Today$/-->Today/g
-s/^Other items//g
+s/^Other items/-->Other/g
 s/^Scheduled: +(TODO )?/🟦 /g
 s/^Sched\. *[0-9]+x: +(TODO|APPT )?/🟧 /g
 s/^Deadline: +(TODO|APPT )?/⭕ /g
