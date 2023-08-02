@@ -7,7 +7,7 @@ panels = [
         "maxheight": 0.4,
         "maxwidth": 0.2,
         "name": "agenda",
-        "command": ["./tugenda", "today" ],
+        "command": ["./tugenda", "today", "other" ],
         "outputType": "plaintext",
         "period": 60,
         "fontsize": 16,
