@@ -1,0 +1,191 @@
+#!/usr/bin/env bash
+#shellcheck disable=SC2154,SC1091
+
+#shellcheck source=helper.sh
+source ~/bin/helper.sh
+
+if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
+   cat <<EOM >/dev/stderr
+--- $command_base ---
+USAGE:
+   $command_base [OPTIONS] [CATEGORIES]
+
+OPTIONS:
+   -h/--help      Display this help message
+   -n/--nodate    Do not display date header
+                  (only applies when showing all categories)
+   -t/--headers   Display category titles
+                  Defaults to false
+
+CATEGORIES
+
+This can be blank (show all categories), or a space delimited list of categories
+to be shown. For categories containing spaces, enclose them in quotes.
+
+Additionally, if a category name is suffixed with -count e.g. 'inbox-count', the
+count of the number of items in that category will be shown instead.
+EOM
+   exit 1
+fi
+
+# defaults / initial values
+nodate='+1'
+show_cat_titles=false
+show_categories=()
+all_categories=()
+show_all_categories=true
+
+# get options
+while [ $# -gt 0 ]; do
+   case "$1" in
+   -t | --headers)
+      show_cat_titles=true
+      ;;
+   -n | --nodate)
+      nodate='+3'
+      ;;
+   *)
+      show_categories+=("$1")
+      show_all_categories=false
+      ;;
+   esac
+
+   shift
+done
+
+debug_var nodate show_cat_titles show_categories show_all_categories
+
+# nodate='+1'
+# [ -n "$1" ] && [[ "$1" == "--nodate" ]] && nodate='+3' && shift
+
+declare -A category_moji
+category_moji[inbox_count]='🌟'
+category_moji[today_count]='⭕'
+category_moji[now]='🟢'
+category_moji[next]='🔵'
+category_moji[later]='🟣'
+
+# tug_generated="$(emacsclient -e "(org-store-agenda-views)")"
+srcfile=~/org/agenda/tug-agenda.txt
+
+if ! [ -e "$srcfile" ]; then
+   echo "$srcfile does not exist"
+   exit 0
+fi
+
+server_not_running_or_error() {
+
+   if pgrep -i emacs >/dev/null 2>&1 && [ -e ~/org ]; then
+      emacsclient --no-wait -e '(org-store-agenda-views)' &
+      sleep 3
+      [ "$(fd -g "$srcfile" --changed-within 3s | wc -l)" -gt 0 ] && return
+   fi
+
+   echo "Emacs server not running" >/dev/stderr
+   exit 0
+}
+
+enforce_show_today() {
+
+   file_date_string="$(head -n 1 "$srcfile")"
+   # validate file is today's
+   # file_date=($file_date_string)
+   IFS=' ' read -r -a file_date <<<"$file_date_string"
+   verbose_var file_date_string file_date
+   mapfile file_date < <(head -n 1 "$srcfile")
+   printf -v actual_date '%(%A %-d %B %Y)T' -1
+   # actual_date=($(date "+%A %-d %B %Y"))
+
+   # declare -p file_date actual_date
+
+   for date_element_index in {0..3}; do
+      [[ ${file_date[$date_element_index]} == ${actual_date[$date_element_index]} ]] || server_not_running_or_error
+   done
+
+}
+
+get_categories() {
+
+   # get full list of categories in to $categories
+
+   tugenda_categories=$(mktemp)
+   {
+      echo Today
+
+      grep -E '^[[:space:]]*-->' "$srcfile" |
+         sed -E 's/^[[:space:]]*-->//g'
+
+      echo Other
+      # echo Overdue
+      # echo Coming\ Up
+   } >$tugenda_categories
+
+   # cat $tugenda_categories
+}
+
+get_category() {
+
+   tugenda_index=0
+   current_category=Today
+
+   cat_regex="^[[:space:]]*-->(.*)$"
+   cat_other_regex="^[[:space:]]*Other\ items$"
+   # cat_overdue_regex="^[[:space:]]*(Sched\. [0-9]+x|In[[:space:]]+[0-9]+[[:space:]]*d\.):"
+
+   requested_category="$1"
+
+   while read -r tugenda_line; do
+      if [ $((tugenda_index++)) -eq 0 ]; then
+         continue
+      elif [[ $tugenda_line =~ $cat_regex ]]; then
+         current_category="${BASH_REMATCH[1],,}"
+      elif [[ $tugenda_line =~ $cat_other_regex ]]; then
+         current_category=Other
+      # elif [[ $tugenda_line =~ $cat_overdue_regex ]]; then
+      #    current_category=Overdue
+      # elif [[ $tugenda_line =~ In[[:space:]]*[0-9]+[[:space:]]*d\.: ]]; then
+      #    current_category=Coming\ Up
+      fi
+
+      if [[ "${requested_category,,}" == "${current_category,,}" ]] &&
+         ! [[ $tugenda_line =~ $cat_regex ]] &&
+         ! [[ $tugenda_line =~ $cat_other_regex ]] &&
+         ! [[ "$tugenda_line" == "Today" ]] &&
+         [ -n "$tugenda_line" ]; then
+
+         cat_bullet="${category_moji[$current_category]}"
+         echo "${tugenda_line//TODO/$cat_bullet}"
+         # declare -p cat_bullet tugenda_line current_category
+      fi
+   done <"$srcfile"
+}
+
+finally() {
+   [ -e "$tugenda_categories" ] && rm $tugenda_categories
+}
+
+enforce_show_today
+get_categories
+
+if $show_all_categories; then
+   cat "$srcfile"
+else
+   for show_category in "${show_categories[@]}"; do
+      # while [ $# -gt 0 ]; do
+      if [[ $show_category =~ ^(.*)-count$ ]]; then
+         count_category_name="${BASH_REMATCH[1]}"
+         count_category="$(get_category "$count_category_name" | wc -l)"
+         count_category=$((count_category + 0))
+         if [ $count_category -gt 0 ]; then
+            printf '%s%s' "${category_moji[${count_category_name}_count]} " "$count_category"
+         fi
+      else
+         if [ "$(get_category "$show_category" | wc -l)" -gt 0 ]; then
+            $show_cat_titles && echo "-->$show_category"
+            get_category "$show_category"
+            $show_cat_titles && echo
+         fi
+      fi
+
+   done
+fi | sed -E -f "$0.sed" | tail -n "${nodate}"
