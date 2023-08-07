@@ -3,8 +3,6 @@
 
 #shellcheck source=helper.sh
 source ~/bin/helper.sh
-set -e
-shopt -s lastpipe
 
 if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
    cat <<EOM >/dev/stderr
@@ -34,7 +32,6 @@ fi
 nodate='+1'
 show_cat_titles=false
 show_categories=()
-all_categories=()
 show_all_categories=true
 
 # get options
@@ -92,14 +89,9 @@ enforce_show_today() {
    file_date_string="$(head -n 1 "$srcfile")"
    # validate file is today's
    file_date=($file_date_string)
-   IFS=' ' read -r -a file_date1 <<<"$file_date_string"
-   # verbose_var file_date_string file_date
-   mapfile file_date1 < <(head -n 1 "$srcfile")
-   printf -v actual_date_string '%(%A %-d %B %Y)T' -1
-   actual_date1=($(date "+%A %-d %B %Y"))
-   IFS=' ' read -r -a actual_date <<<"$actual_date_string"
+   actual_date=($(date "+%A %-d %B %Y"))
 
-   verbose_var file_date1 file_date actual_date
+   # declare -p file_date actual_date
 
    for date_element_index in {0..3}; do
       [[ ${file_date[$date_element_index]} == ${actual_date[$date_element_index]} ]] || server_not_running_or_error
@@ -132,7 +124,7 @@ get_category() {
    current_category=Today
 
    cat_regex="^[[:space:]]*-->(.*)$"
-   cat_other_regex="^[[:space:]]*Other items$"
+   cat_other_regex="^[[:space:]]*Other\ items$"
    # cat_overdue_regex="^[[:space:]]*(Sched\. [0-9]+x|In[[:space:]]+[0-9]+[[:space:]]*d\.):"
 
    requested_category="$1"
@@ -158,12 +150,9 @@ get_category() {
 
          cat_bullet="${category_moji[$current_category]}"
          echo "${tugenda_line//TODO/$cat_bullet}"
-
          # declare -p cat_bullet tugenda_line current_category
       fi
    done <"$srcfile"
-   verbose_var -v requested_category current_category tugenda_line cat_regex cat_other_regex cat_bullet
-   pause
 }
 
 finally() {
