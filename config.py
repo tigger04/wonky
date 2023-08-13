@@ -1,21 +1,5 @@
 panels = [
     {
-        "name": "tugenda",
-        "top": 0.05,
-        "left": 0.03,
-        # "margin": 10,
-        "maxheight": 0.4,
-        "maxwidth": 0.2,
-        "name": "agenda",
-        "command": ["./tugenda", "today", "other" ],
-        "outputType": "plaintext",
-        "period": 60,
-        "fontsize": 16,
-        "textColor": [255, 255, 255, 190],
-        "bgColor": [0, 0, 0, 50],
-        "autoresize": True,
-    },
-    {
         "name": "priorities",
         "top": 0.2,
         "maxwidth": 0.5,
