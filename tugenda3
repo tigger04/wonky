@@ -91,10 +91,11 @@ enforce_show_today() {
 
    file_date_string="$(head -n 1 "$srcfile")"
    # validate file is today's
-   file_date=($file_date_string)
-   IFS=' ' read -r -a file_date1 <<<"$file_date_string"
-   # verbose_var file_date_string file_date
-   mapfile file_date1 < <(head -n 1 "$srcfile")
+   # file_date=($file_date_string)
+   mapfile file_date < <(head -n 1 "$srcfile")
+   readarray -d ' ' file_date <<<"$file_date_string"
+   verbose_var file_date_string file_date
+   mapfile file_date < <(head -n 1 "$srcfile")
    printf -v actual_date_string '%(%A %-d %B %Y)T' -1
    actual_date1=($(date "+%A %-d %B %Y"))
    IFS=' ' read -r -a actual_date <<<"$actual_date_string"
