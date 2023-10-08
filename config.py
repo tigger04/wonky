@@ -4,7 +4,7 @@ panels = [
         "top": 0.2,
         "maxwidth": 0.5,
         "minwidth": 0.001,
-        "command": ["~/wonky/priorities", "3"],
+        "command": ["~/bin/quick-and-dirty-org-agenda", "@desk"],
         "outputType": "plaintext",
         "linewrap": False,
         "period": 60,
